@@ -1,0 +1,6 @@
+(library
+  (name opile_lib)
+  (libraries core compiler-libs)
+  (inline_tests)
+  (preprocess (pps ppx_expect ppx_jane))
+  )
