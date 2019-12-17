@@ -88,7 +88,8 @@ let mk_inc ~module_name types =
        (Mod.constraint_
           (Mod.ident (mknoloc (Lident module_name)))
           (Mty.with_
-             (Mty.typeof_ (Mod.ident (mknoloc (Lident module_name))))
+             (Mty.typeof_ 
+                (Mod.structure [ Str.include_ (Incl.mk (Mod.ident (mknoloc (Lident module_name)))) ]))
              (List.map ~f:(typesubst ~module_name) types)
           )
        )
@@ -126,6 +127,13 @@ let sexpify_file filename =
   |> Pprintast.structure Format.str_formatter;
   Format.flush_str_formatter ()
 
+let ocamlformat string =
+  let process = Unix.create_process ~prog:"ocamlformat" ~args:[ "-p"; "janestreet"; "--impl"; "-" ] in
+  let c = Unix.out_channel_of_descr process.stdin in
+  Out_channel.output_string c string;
+  Out_channel.close c;
+  In_channel.input_all (Unix.in_channel_of_descr process.stdout)
+
 let command : Command.t =
   let open Command.Let_syntax in
   Command.basic
@@ -135,6 +143,7 @@ let command : Command.t =
       in
       fun () ->
         sexpify_file filename
+        |> ocamlformat
         |> print_endline
     ]
 

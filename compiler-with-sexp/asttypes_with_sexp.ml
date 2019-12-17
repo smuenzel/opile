@@ -10,23 +10,40 @@ type constant = Asttypes.constant =
   | Const_nativeint of nativeint
 [@@deriving sexp]
 
-type rec_flag = Asttypes.rec_flag = Nonrecursive | Recursive [@@deriving sexp]
-
-type direction_flag = Asttypes.direction_flag = Upto | Downto
+type rec_flag = Asttypes.rec_flag =
+  | Nonrecursive
+  | Recursive
 [@@deriving sexp]
 
-type private_flag = Asttypes.private_flag = Private | Public [@@deriving sexp]
-
-type mutable_flag = Asttypes.mutable_flag = Immutable | Mutable
+type direction_flag = Asttypes.direction_flag =
+  | Upto
+  | Downto
 [@@deriving sexp]
 
-type virtual_flag = Asttypes.virtual_flag = Virtual | Concrete
+type private_flag = Asttypes.private_flag =
+  | Private
+  | Public
 [@@deriving sexp]
 
-type override_flag = Asttypes.override_flag = Override | Fresh
+type mutable_flag = Asttypes.mutable_flag =
+  | Immutable
+  | Mutable
 [@@deriving sexp]
 
-type closed_flag = Asttypes.closed_flag = Closed | Open [@@deriving sexp]
+type virtual_flag = Asttypes.virtual_flag =
+  | Virtual
+  | Concrete
+[@@deriving sexp]
+
+type override_flag = Asttypes.override_flag =
+  | Override
+  | Fresh
+[@@deriving sexp]
+
+type closed_flag = Asttypes.closed_flag =
+  | Closed
+  | Open
+[@@deriving sexp]
 
 type label = string [@@deriving sexp]
 
@@ -36,8 +53,15 @@ type arg_label = Asttypes.arg_label =
   | Optional of string
 [@@deriving sexp]
 
-type 'a loc = 'a Asttypes.loc = { txt : 'a; loc : Location_with_sexp.t }
+type 'a loc = 'a Asttypes.loc =
+  { txt : 'a
+  ; loc : Location_with_sexp.t
+  }
 [@@deriving sexp]
 
-type variance = Asttypes.variance = Covariant | Contravariant | Invariant
+type variance = Asttypes.variance =
+  | Covariant
+  | Contravariant
+  | Invariant
 [@@deriving sexp]
+

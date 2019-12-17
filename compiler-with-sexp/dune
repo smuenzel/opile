@@ -4,3 +4,15 @@
   (inline_tests)
   (preprocess (pps ppx_expect ppx_jane))
   )
+
+(rule
+  (target lexing_with_sexp.ml)
+  (deps   ../raw-compiler/lexing.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target asttypes_with_sexp.ml)
+  (deps   ../raw-compiler/asttypes.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
