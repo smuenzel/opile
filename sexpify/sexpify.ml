@@ -49,6 +49,18 @@ let rec map_last ~f = function
   | [ x ] -> [ f x ]
   | x :: xs -> x :: (map_last ~f xs)
 
+let opens ({psig_desc; _} : signature_item) =
+  match psig_desc with
+  | Psig_open { popen_expr = { loc = _; txt = Lident mod_ }
+              ; popen_override = override
+              ; popen_loc = _
+              ; popen_attributes = _
+              } -> 
+    let mod_ = mod_ ^ "_with_sexp" in
+    let open Ast_helper in
+    Str.open_ (Opn.mk ~override (Mod.ident (mknoloc (Lident mod_))))
+    |> Some
+  | _ -> None
 
 let psi ~module_name ({psig_desc; _} : signature_item) : structure_item option =
   match psig_desc with
@@ -109,6 +121,9 @@ let sexpify_file filename =
           Parse.interface lexbuf
         )
   in
+  let opens = 
+    List.filter_map interface ~f:opens
+  in
   let has_val = List.exists interface ~f:(function | {psig_desc = Psig_value _; _ } -> true | _ -> false) in
   let from_file =
     interface
@@ -120,6 +135,7 @@ let sexpify_file filename =
   in
   let result =
     [%str open Core ]
+    @ opens
     @ from_file
     @ (if has_val then [ mk_inc ~module_name all_types] else [])
   in

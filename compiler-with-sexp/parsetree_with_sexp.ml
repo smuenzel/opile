@@ -8,11 +8,11 @@ type constant = Parsetree.constant =
   | Pconst_float of string * char option
 [@@deriving sexp]
 
-type attribute = Parsetree.attribute = {
-  attr_name : string loc;
-  attr_payload : payload;
-  attr_loc : Location_with_sexp.t;
-}
+type attribute = Parsetree.attribute =
+  { attr_name : string loc
+  ; attr_payload : payload
+  ; attr_loc : Location_with_sexp.t
+  }
 
 and extension = string loc * payload
 
@@ -24,12 +24,12 @@ and payload = Parsetree.payload =
   | PTyp of core_type
   | PPat of pattern * expression option
 
-and core_type = Parsetree.core_type = {
-  ptyp_desc : core_type_desc;
-  ptyp_loc : Location_with_sexp.t;
-  ptyp_loc_stack : Location_with_sexp.t list;
-  ptyp_attributes : attributes;
-}
+and core_type = Parsetree.core_type =
+  { ptyp_desc : core_type_desc
+  ; ptyp_loc : Location_with_sexp.t
+  ; ptyp_loc_stack : Location_with_sexp.t list
+  ; ptyp_attributes : attributes
+  }
 
 and core_type_desc = Parsetree.core_type_desc =
   | Ptyp_any
@@ -48,32 +48,32 @@ and core_type_desc = Parsetree.core_type_desc =
 and package_type =
   Longident_with_sexp.t loc * (Longident_with_sexp.t loc * core_type) list
 
-and row_field = Parsetree.row_field = {
-  prf_desc : row_field_desc;
-  prf_loc : Location_with_sexp.t;
-  prf_attributes : attributes;
-}
+and row_field = Parsetree.row_field =
+  { prf_desc : row_field_desc
+  ; prf_loc : Location_with_sexp.t
+  ; prf_attributes : attributes
+  }
 
 and row_field_desc = Parsetree.row_field_desc =
   | Rtag of label loc * bool * core_type list
   | Rinherit of core_type
 
-and object_field = Parsetree.object_field = {
-  pof_desc : object_field_desc;
-  pof_loc : Location_with_sexp.t;
-  pof_attributes : attributes;
-}
+and object_field = Parsetree.object_field =
+  { pof_desc : object_field_desc
+  ; pof_loc : Location_with_sexp.t
+  ; pof_attributes : attributes
+  }
 
 and object_field_desc = Parsetree.object_field_desc =
   | Otag of label loc * core_type
   | Oinherit of core_type
 
-and pattern = Parsetree.pattern = {
-  ppat_desc : pattern_desc;
-  ppat_loc : Location_with_sexp.t;
-  ppat_loc_stack : Location_with_sexp.t list;
-  ppat_attributes : attributes;
-}
+and pattern = Parsetree.pattern =
+  { ppat_desc : pattern_desc
+  ; ppat_loc : Location_with_sexp.t
+  ; ppat_loc_stack : Location_with_sexp.t list
+  ; ppat_attributes : attributes
+  }
 
 and pattern_desc = Parsetree.pattern_desc =
   | Ppat_any
@@ -95,12 +95,12 @@ and pattern_desc = Parsetree.pattern_desc =
   | Ppat_extension of extension
   | Ppat_open of Longident_with_sexp.t loc * pattern
 
-and expression = Parsetree.expression = {
-  pexp_desc : expression_desc;
-  pexp_loc : Location_with_sexp.t;
-  pexp_loc_stack : Location_with_sexp.t list;
-  pexp_attributes : attributes;
-}
+and expression = Parsetree.expression =
+  { pexp_desc : expression_desc
+  ; pexp_loc : Location_with_sexp.t
+  ; pexp_loc_stack : Location_with_sexp.t list
+  ; pexp_attributes : attributes
+  }
 
 and expression_desc = Parsetree.expression_desc =
   | Pexp_ident of Longident_with_sexp.t loc
@@ -114,8 +114,7 @@ and expression_desc = Parsetree.expression_desc =
   | Pexp_tuple of expression list
   | Pexp_construct of Longident_with_sexp.t loc * expression option
   | Pexp_variant of label * expression option
-  | Pexp_record of
-      (Longident_with_sexp.t loc * expression) list * expression option
+  | Pexp_record of (Longident_with_sexp.t loc * expression) list * expression option
   | Pexp_field of expression * Longident_with_sexp.t loc
   | Pexp_setfield of expression * Longident_with_sexp.t loc * expression
   | Pexp_array of expression list
@@ -142,43 +141,43 @@ and expression_desc = Parsetree.expression_desc =
   | Pexp_extension of extension
   | Pexp_unreachable
 
-and case = Parsetree.case = {
-  pc_lhs : pattern;
-  pc_guard : expression option;
-  pc_rhs : expression;
-}
+and case = Parsetree.case =
+  { pc_lhs : pattern
+  ; pc_guard : expression option
+  ; pc_rhs : expression
+  }
 
-and letop = Parsetree.letop = {
-  let_ : binding_op;
-  ands : binding_op list;
-  body : expression;
-}
+and letop = Parsetree.letop =
+  { let_ : binding_op
+  ; ands : binding_op list
+  ; body : expression
+  }
 
-and binding_op = Parsetree.binding_op = {
-  pbop_op : string loc;
-  pbop_pat : pattern;
-  pbop_exp : expression;
-  pbop_loc : Location_with_sexp.t;
-}
+and binding_op = Parsetree.binding_op =
+  { pbop_op : string loc
+  ; pbop_pat : pattern
+  ; pbop_exp : expression
+  ; pbop_loc : Location_with_sexp.t
+  }
 
-and value_description = Parsetree.value_description = {
-  pval_name : string loc;
-  pval_type : core_type;
-  pval_prim : string list;
-  pval_attributes : attributes;
-  pval_loc : Location_with_sexp.t;
-}
+and value_description = Parsetree.value_description =
+  { pval_name : string loc
+  ; pval_type : core_type
+  ; pval_prim : string list
+  ; pval_attributes : attributes
+  ; pval_loc : Location_with_sexp.t
+  }
 
-and type_declaration = Parsetree.type_declaration = {
-  ptype_name : string loc;
-  ptype_params : (core_type * variance) list;
-  ptype_cstrs : (core_type * core_type * Location_with_sexp.t) list;
-  ptype_kind : type_kind;
-  ptype_private : private_flag;
-  ptype_manifest : core_type option;
-  ptype_attributes : attributes;
-  ptype_loc : Location_with_sexp.t;
-}
+and type_declaration = Parsetree.type_declaration =
+  { ptype_name : string loc
+  ; ptype_params : (core_type * variance) list
+  ; ptype_cstrs : (core_type * core_type * Location_with_sexp.t) list
+  ; ptype_kind : type_kind
+  ; ptype_private : private_flag
+  ; ptype_manifest : core_type option
+  ; ptype_attributes : attributes
+  ; ptype_loc : Location_with_sexp.t
+  }
 
 and type_kind = Parsetree.type_kind =
   | Ptype_abstract
@@ -186,57 +185,57 @@ and type_kind = Parsetree.type_kind =
   | Ptype_record of label_declaration list
   | Ptype_open
 
-and label_declaration = Parsetree.label_declaration = {
-  pld_name : string loc;
-  pld_mutable : mutable_flag;
-  pld_type : core_type;
-  pld_loc : Location_with_sexp.t;
-  pld_attributes : attributes;
-}
+and label_declaration = Parsetree.label_declaration =
+  { pld_name : string loc
+  ; pld_mutable : mutable_flag
+  ; pld_type : core_type
+  ; pld_loc : Location_with_sexp.t
+  ; pld_attributes : attributes
+  }
 
-and constructor_declaration = Parsetree.constructor_declaration = {
-  pcd_name : string loc;
-  pcd_args : constructor_arguments;
-  pcd_res : core_type option;
-  pcd_loc : Location_with_sexp.t;
-  pcd_attributes : attributes;
-}
+and constructor_declaration = Parsetree.constructor_declaration =
+  { pcd_name : string loc
+  ; pcd_args : constructor_arguments
+  ; pcd_res : core_type option
+  ; pcd_loc : Location_with_sexp.t
+  ; pcd_attributes : attributes
+  }
 
 and constructor_arguments = Parsetree.constructor_arguments =
   | Pcstr_tuple of core_type list
   | Pcstr_record of label_declaration list
 
-and type_extension = Parsetree.type_extension = {
-  ptyext_path : Longident_with_sexp.t loc;
-  ptyext_params : (core_type * variance) list;
-  ptyext_constructors : extension_constructor list;
-  ptyext_private : private_flag;
-  ptyext_loc : Location_with_sexp.t;
-  ptyext_attributes : attributes;
-}
+and type_extension = Parsetree.type_extension =
+  { ptyext_path : Longident_with_sexp.t loc
+  ; ptyext_params : (core_type * variance) list
+  ; ptyext_constructors : extension_constructor list
+  ; ptyext_private : private_flag
+  ; ptyext_loc : Location_with_sexp.t
+  ; ptyext_attributes : attributes
+  }
 
-and extension_constructor = Parsetree.extension_constructor = {
-  pext_name : string loc;
-  pext_kind : extension_constructor_kind;
-  pext_loc : Location_with_sexp.t;
-  pext_attributes : attributes;
-}
+and extension_constructor = Parsetree.extension_constructor =
+  { pext_name : string loc
+  ; pext_kind : extension_constructor_kind
+  ; pext_loc : Location_with_sexp.t
+  ; pext_attributes : attributes
+  }
 
-and type_exception = Parsetree.type_exception = {
-  ptyexn_constructor : extension_constructor;
-  ptyexn_loc : Location_with_sexp.t;
-  ptyexn_attributes : attributes;
-}
+and type_exception = Parsetree.type_exception =
+  { ptyexn_constructor : extension_constructor
+  ; ptyexn_loc : Location_with_sexp.t
+  ; ptyexn_attributes : attributes
+  }
 
 and extension_constructor_kind = Parsetree.extension_constructor_kind =
   | Pext_decl of constructor_arguments * core_type option
   | Pext_rebind of Longident_with_sexp.t loc
 
-and class_type = Parsetree.class_type = {
-  pcty_desc : class_type_desc;
-  pcty_loc : Location_with_sexp.t;
-  pcty_attributes : attributes;
-}
+and class_type = Parsetree.class_type =
+  { pcty_desc : class_type_desc
+  ; pcty_loc : Location_with_sexp.t
+  ; pcty_attributes : attributes
+  }
 
 and class_type_desc = Parsetree.class_type_desc =
   | Pcty_constr of Longident_with_sexp.t loc * core_type list
@@ -245,16 +244,16 @@ and class_type_desc = Parsetree.class_type_desc =
   | Pcty_extension of extension
   | Pcty_open of open_description * class_type
 
-and class_signature = Parsetree.class_signature = {
-  pcsig_self : core_type;
-  pcsig_fields : class_type_field list;
-}
+and class_signature = Parsetree.class_signature =
+  { pcsig_self : core_type
+  ; pcsig_fields : class_type_field list
+  }
 
-and class_type_field = Parsetree.class_type_field = {
-  pctf_desc : class_type_field_desc;
-  pctf_loc : Location_with_sexp.t;
-  pctf_attributes : attributes;
-}
+and class_type_field = Parsetree.class_type_field =
+  { pctf_desc : class_type_field_desc
+  ; pctf_loc : Location_with_sexp.t
+  ; pctf_attributes : attributes
+  }
 
 and class_type_field_desc = Parsetree.class_type_field_desc =
   | Pctf_inherit of class_type
@@ -264,24 +263,24 @@ and class_type_field_desc = Parsetree.class_type_field_desc =
   | Pctf_attribute of attribute
   | Pctf_extension of extension
 
-and 'a class_infos = 'a Parsetree.class_infos = {
-  pci_virt : virtual_flag;
-  pci_params : (core_type * variance) list;
-  pci_name : string loc;
-  pci_expr : 'a;
-  pci_loc : Location_with_sexp.t;
-  pci_attributes : attributes;
-}
+and 'a class_infos = 'a Parsetree.class_infos =
+  { pci_virt : virtual_flag
+  ; pci_params : (core_type * variance) list
+  ; pci_name : string loc
+  ; pci_expr : 'a
+  ; pci_loc : Location_with_sexp.t
+  ; pci_attributes : attributes
+  }
 
 and class_description = class_type class_infos
 
 and class_type_declaration = class_type class_infos
 
-and class_expr = Parsetree.class_expr = {
-  pcl_desc : class_expr_desc;
-  pcl_loc : Location_with_sexp.t;
-  pcl_attributes : attributes;
-}
+and class_expr = Parsetree.class_expr =
+  { pcl_desc : class_expr_desc
+  ; pcl_loc : Location_with_sexp.t
+  ; pcl_attributes : attributes
+  }
 
 and class_expr_desc = Parsetree.class_expr_desc =
   | Pcl_constr of Longident_with_sexp.t loc * core_type list
@@ -293,16 +292,16 @@ and class_expr_desc = Parsetree.class_expr_desc =
   | Pcl_extension of extension
   | Pcl_open of open_description * class_expr
 
-and class_structure = Parsetree.class_structure = {
-  pcstr_self : pattern;
-  pcstr_fields : class_field list;
-}
+and class_structure = Parsetree.class_structure =
+  { pcstr_self : pattern
+  ; pcstr_fields : class_field list
+  }
 
-and class_field = Parsetree.class_field = {
-  pcf_desc : class_field_desc;
-  pcf_loc : Location_with_sexp.t;
-  pcf_attributes : attributes;
-}
+and class_field = Parsetree.class_field =
+  { pcf_desc : class_field_desc
+  ; pcf_loc : Location_with_sexp.t
+  ; pcf_attributes : attributes
+  }
 
 and class_field_desc = Parsetree.class_field_desc =
   | Pcf_inherit of override_flag * class_expr * string loc option
@@ -319,11 +318,11 @@ and class_field_kind = Parsetree.class_field_kind =
 
 and class_declaration = class_expr class_infos
 
-and module_type = Parsetree.module_type = {
-  pmty_desc : module_type_desc;
-  pmty_loc : Location_with_sexp.t;
-  pmty_attributes : attributes;
-}
+and module_type = Parsetree.module_type =
+  { pmty_desc : module_type_desc
+  ; pmty_loc : Location_with_sexp.t
+  ; pmty_attributes : attributes
+  }
 
 and module_type_desc = Parsetree.module_type_desc =
   | Pmty_ident of Longident_with_sexp.t loc
@@ -336,10 +335,10 @@ and module_type_desc = Parsetree.module_type_desc =
 
 and signature = signature_item list
 
-and signature_item = Parsetree.signature_item = {
-  psig_desc : signature_item_desc;
-  psig_loc : Location_with_sexp.t;
-}
+and signature_item = Parsetree.signature_item =
+  { psig_desc : signature_item_desc
+  ; psig_loc : Location_with_sexp.t
+  }
 
 and signature_item_desc = Parsetree.signature_item_desc =
   | Psig_value of value_description
@@ -358,43 +357,43 @@ and signature_item_desc = Parsetree.signature_item_desc =
   | Psig_attribute of attribute
   | Psig_extension of extension * attributes
 
-and module_declaration = Parsetree.module_declaration = {
-  pmd_name : string loc;
-  pmd_type : module_type;
-  pmd_attributes : attributes;
-  pmd_loc : Location_with_sexp.t;
-}
+and module_declaration = Parsetree.module_declaration =
+  { pmd_name : string loc
+  ; pmd_type : module_type
+  ; pmd_attributes : attributes
+  ; pmd_loc : Location_with_sexp.t
+  }
 
-and module_substitution = Parsetree.module_substitution = {
-  pms_name : string loc;
-  pms_manifest : Longident_with_sexp.t loc;
-  pms_attributes : attributes;
-  pms_loc : Location_with_sexp.t;
-}
+and module_substitution = Parsetree.module_substitution =
+  { pms_name : string loc
+  ; pms_manifest : Longident_with_sexp.t loc
+  ; pms_attributes : attributes
+  ; pms_loc : Location_with_sexp.t
+  }
 
-and module_type_declaration = Parsetree.module_type_declaration = {
-  pmtd_name : string loc;
-  pmtd_type : module_type option;
-  pmtd_attributes : attributes;
-  pmtd_loc : Location_with_sexp.t;
-}
+and module_type_declaration = Parsetree.module_type_declaration =
+  { pmtd_name : string loc
+  ; pmtd_type : module_type option
+  ; pmtd_attributes : attributes
+  ; pmtd_loc : Location_with_sexp.t
+  }
 
-and 'a open_infos = 'a Parsetree.open_infos = {
-  popen_expr : 'a;
-  popen_override : override_flag;
-  popen_loc : Location_with_sexp.t;
-  popen_attributes : attributes;
-}
+and 'a open_infos = 'a Parsetree.open_infos =
+  { popen_expr : 'a
+  ; popen_override : override_flag
+  ; popen_loc : Location_with_sexp.t
+  ; popen_attributes : attributes
+  }
 
 and open_description = Longident_with_sexp.t loc open_infos
 
 and open_declaration = module_expr open_infos
 
-and 'a include_infos = 'a Parsetree.include_infos = {
-  pincl_mod : 'a;
-  pincl_loc : Location_with_sexp.t;
-  pincl_attributes : attributes;
-}
+and 'a include_infos = 'a Parsetree.include_infos =
+  { pincl_mod : 'a
+  ; pincl_loc : Location_with_sexp.t
+  ; pincl_attributes : attributes
+  }
 
 and include_description = module_type include_infos
 
@@ -406,11 +405,11 @@ and with_constraint = Parsetree.with_constraint =
   | Pwith_typesubst of Longident_with_sexp.t loc * type_declaration
   | Pwith_modsubst of Longident_with_sexp.t loc * Longident_with_sexp.t loc
 
-and module_expr = Parsetree.module_expr = {
-  pmod_desc : module_expr_desc;
-  pmod_loc : Location_with_sexp.t;
-  pmod_attributes : attributes;
-}
+and module_expr = Parsetree.module_expr =
+  { pmod_desc : module_expr_desc
+  ; pmod_loc : Location_with_sexp.t
+  ; pmod_attributes : attributes
+  }
 
 and module_expr_desc = Parsetree.module_expr_desc =
   | Pmod_ident of Longident_with_sexp.t loc
@@ -423,10 +422,10 @@ and module_expr_desc = Parsetree.module_expr_desc =
 
 and structure = structure_item list
 
-and structure_item = Parsetree.structure_item = {
-  pstr_desc : structure_item_desc;
-  pstr_loc : Location_with_sexp.t;
-}
+and structure_item = Parsetree.structure_item =
+  { pstr_desc : structure_item_desc
+  ; pstr_loc : Location_with_sexp.t
+  }
 
 and structure_item_desc = Parsetree.structure_item_desc =
   | Pstr_eval of expression * attributes
@@ -445,35 +444,35 @@ and structure_item_desc = Parsetree.structure_item_desc =
   | Pstr_attribute of attribute
   | Pstr_extension of extension * attributes
 
-and value_binding = Parsetree.value_binding = {
-  pvb_pat : pattern;
-  pvb_expr : expression;
-  pvb_attributes : attributes;
-  pvb_loc : Location_with_sexp.t;
-}
+and value_binding = Parsetree.value_binding =
+  { pvb_pat : pattern
+  ; pvb_expr : expression
+  ; pvb_attributes : attributes
+  ; pvb_loc : Location_with_sexp.t
+  }
 
-and module_binding = Parsetree.module_binding = {
-  pmb_name : string loc;
-  pmb_expr : module_expr;
-  pmb_attributes : attributes;
-  pmb_loc : Location_with_sexp.t;
-}
+and module_binding = Parsetree.module_binding =
+  { pmb_name : string loc
+  ; pmb_expr : module_expr
+  ; pmb_attributes : attributes
+  ; pmb_loc : Location_with_sexp.t
+  }
 [@@deriving sexp]
 
 type toplevel_phrase = Parsetree.toplevel_phrase =
   | Ptop_def of structure
   | Ptop_dir of toplevel_directive
 
-and toplevel_directive = Parsetree.toplevel_directive = {
-  pdir_name : string loc;
-  pdir_arg : directive_argument option;
-  pdir_loc : Location_with_sexp.t;
-}
+and toplevel_directive = Parsetree.toplevel_directive =
+  { pdir_name : string loc
+  ; pdir_arg : directive_argument option
+  ; pdir_loc : Location_with_sexp.t
+  }
 
-and directive_argument = Parsetree.directive_argument = {
-  pdira_desc : directive_argument_desc;
-  pdira_loc : Location_with_sexp.t;
-}
+and directive_argument = Parsetree.directive_argument =
+  { pdira_desc : directive_argument_desc
+  ; pdira_loc : Location_with_sexp.t
+  }
 
 and directive_argument_desc = Parsetree.directive_argument_desc =
   | Pdir_string of string
@@ -481,3 +480,4 @@ and directive_argument_desc = Parsetree.directive_argument_desc =
   | Pdir_ident of Longident_with_sexp.t
   | Pdir_bool of bool
 [@@deriving sexp]
+

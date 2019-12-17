@@ -12,7 +12,25 @@
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
+  (target longident_with_sexp.ml)
+  (deps   ../raw-compiler/longident.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target location_with_sexp.ml)
+  (deps   ../raw-compiler/location.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
   (target asttypes_with_sexp.ml)
   (deps   ../raw-compiler/asttypes.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target parsetree_with_sexp.ml)
+  (deps   ../raw-compiler/parsetree.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))

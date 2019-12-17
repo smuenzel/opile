@@ -20,8 +20,6 @@
 
 *)
 
-open Format
-
 type t = Warnings.loc = {
   loc_start: Lexing.position;
   loc_end: Lexing.position;
