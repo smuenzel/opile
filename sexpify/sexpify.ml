@@ -62,23 +62,67 @@ let psi ~module_name ({psig_desc; _} : signature_item) : structure_item option =
   |Psig_include _|Psig_class _|Psig_class_type _|Psig_attribute _
   |Psig_extension (_, _) -> None
 
+let typename : structure_item -> _ list = function
+  | { pstr_desc = Pstr_type (_,types); _} -> 
+    List.map types 
+      ~f:(fun { ptype_name = { txt; _}; ptype_params; _} -> 
+          let params = List.map ptype_params ~f:fst in
+          txt, params
+        )
+  | _ -> []
+
+
+let typesubst ~module_name (name,params) : with_constraint =
+  let manifest =
+    Ast_helper.Typ.constr (mknoloc (Ldot ((Lident module_name), name))) params
+  in
+  Pwith_typesubst 
+    (mknoloc (Lident name), Ast_helper.Type.mk 
+       ~params:(List.map params ~f:(fun p -> p, Invariant))
+       ~manifest (mknoloc "x")) 
+
+let mk_inc ~module_name types =
+  let open Ast_helper in
+  Str.include_
+    (Incl.mk
+       (Mod.constraint_
+          (Mod.ident (mknoloc (Lident module_name)))
+          (Mty.with_
+             (Mty.typeof_ (Mod.ident (mknoloc (Lident module_name))))
+             (List.map ~f:(typesubst ~module_name) types)
+          )
+       )
+
+    )
+
 let sexpify_file filename =
   let module_name =
     (String.chop_suffix_exn ~suffix:".mli" (Filename.basename filename)
      |> String.capitalize
     )
   in
-  let from_file =
-  In_channel.with_file filename
-    ~f:(fun channel ->
-        let lexbuf = Lexing.from_channel channel in
-        Parse.interface lexbuf
-        |> add_with_sexp#signature
-        |> List.filter_map ~f:(psi ~module_name)
-      )
+  let interface =
+    In_channel.with_file filename
+      ~f:(fun channel ->
+          let lexbuf = Lexing.from_channel channel in
+          Parse.interface lexbuf
+        )
   in
-  [%str open Core ]
-  @ from_file
+  let has_val = List.exists interface ~f:(function | {psig_desc = Psig_value _; _ } -> true | _ -> false) in
+  let from_file =
+    interface
+    |> add_with_sexp#signature
+    |> List.filter_map ~f:(psi ~module_name)
+  in
+  let all_types =
+    List.concat_map ~f:typename from_file 
+  in
+  let result =
+    [%str open Core ]
+    @ from_file
+    @ (if has_val then [ mk_inc ~module_name all_types] else [])
+  in
+  result
   |> Pprintast.structure Format.str_formatter;
   Format.flush_str_formatter ()
 
