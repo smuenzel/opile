@@ -40,7 +40,7 @@ let add_manifest ~module_name (td : type_declaration) =
 
 let add_deriving_sexp (td : type_declaration) =
   let attribute =
-    Ast_helper.Attr.mk (mknoloc "deriving") (PStr [%str sexp]);
+    Ast_helper.Attr.mk (mknoloc "deriving") (PStr [%str sexp_of]);
   in
   { td with ptype_attributes = [ attribute ] }
 
@@ -134,7 +134,7 @@ let sexpify_file filename =
     List.concat_map ~f:typename from_file 
   in
   let result =
-    [%str open Core ]
+    [%str open! Core ]
     @ opens
     @ from_file
     @ (if has_val then [ mk_inc ~module_name all_types] else [])

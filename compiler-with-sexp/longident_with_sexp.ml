@@ -1,10 +1,10 @@
-open Core
+open! Core
 
 type t = Longident.t =
   | Lident of string
   | Ldot of t * string
   | Lapply of t * t
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 include (
   Longident :

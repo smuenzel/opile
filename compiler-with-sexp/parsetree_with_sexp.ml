@@ -1,4 +1,4 @@
-open Core
+open! Core
 open Asttypes_with_sexp
 
 type constant = Parsetree.constant =
@@ -6,7 +6,7 @@ type constant = Parsetree.constant =
   | Pconst_char of char
   | Pconst_string of string * string option
   | Pconst_float of string * char option
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 type attribute = Parsetree.attribute =
   { attr_name : string loc
@@ -457,7 +457,7 @@ and module_binding = Parsetree.module_binding =
   ; pmb_attributes : attributes
   ; pmb_loc : Location_with_sexp.t
   }
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 type toplevel_phrase = Parsetree.toplevel_phrase =
   | Ptop_def of structure
@@ -479,5 +479,5 @@ and directive_argument_desc = Parsetree.directive_argument_desc =
   | Pdir_int of string * char option
   | Pdir_ident of Longident_with_sexp.t
   | Pdir_bool of bool
-[@@deriving sexp]
+[@@deriving sexp_of]
 

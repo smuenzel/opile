@@ -1,4 +1,4 @@
-open Core
+open! Core
 
 type position = Lexing.position =
   { pos_fname : string
@@ -6,7 +6,7 @@ type position = Lexing.position =
   ; pos_bol : int
   ; pos_cnum : int
   }
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 type lexbuf = Lexing.lexbuf =
   { refill_buff : lexbuf -> unit
@@ -22,7 +22,7 @@ type lexbuf = Lexing.lexbuf =
   ; mutable lex_start_p : position
   ; mutable lex_curr_p : position
   }
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 type lex_tables = Lexing.lex_tables =
   { lex_base : string
@@ -37,7 +37,7 @@ type lex_tables = Lexing.lex_tables =
   ; lex_check_code : string
   ; lex_code : string
   }
-[@@deriving sexp]
+[@@deriving sexp_of]
 
 include (
   Lexing :
