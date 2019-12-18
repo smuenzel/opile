@@ -12,8 +12,32 @@
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target ident_with_sexp.ml)
-  (deps   ../raw-compiler/ident.mli)
+  (target ctype_with_sexp.ml)
+  (deps   ../raw-compiler/ctype.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target includecore_with_sexp.ml)
+  (deps   ../raw-compiler/includecore.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target includemod_with_sexp.ml)
+  (deps   ../raw-compiler/includemod.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target typetexp_with_sexp.ml)
+  (deps   ../raw-compiler/typetexp.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target primitive_with_sexp.ml)
+  (deps   ../raw-compiler/primitive.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 

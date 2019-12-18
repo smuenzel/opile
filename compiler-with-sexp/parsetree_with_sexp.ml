@@ -1,5 +1,5 @@
 open! Core
-open Asttypes_with_sexp
+open! Asttypes_with_sexp
 
 type constant = Parsetree.constant =
   | Pconst_integer of string * char option

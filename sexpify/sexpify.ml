@@ -52,13 +52,13 @@ let rec map_last ~f = function
 let opens ({psig_desc; _} : signature_item) =
   match psig_desc with
   | Psig_open { popen_expr = { loc = _; txt = Lident mod_ }
-              ; popen_override = override
+              ; popen_override = _
               ; popen_loc = _
               ; popen_attributes = _
               } -> 
     let mod_ = mod_ ^ "_with_sexp" in
     let open Ast_helper in
-    Str.open_ (Opn.mk ~override (Mod.ident (mknoloc (Lident mod_))))
+    Str.open_ (Opn.mk ~override:Override (Mod.ident (mknoloc (Lident mod_))))
     |> Some
   | _ -> None
 
