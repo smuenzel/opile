@@ -1,84 +1,84 @@
 (library
   (name compiler_with_sexp)
-  (libraries core ocaml-compiler-libs.optcomp ocaml-compiler-libs.common)
+  (libraries core compiler_without_sexp)
   (inline_tests)
   (preprocess (pps ppx_expect ppx_jane))
   )
 
 (rule
-  (target lexing_with_sexp.ml)
+  (target lexing.ml)
   (deps   ../raw-compiler/lexing.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target ctype_with_sexp.ml)
+  (target ctype.ml)
   (deps   ../raw-compiler/ctype.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target includecore_with_sexp.ml)
+  (target includecore.ml)
   (deps   ../raw-compiler/includecore.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target includemod_with_sexp.ml)
+  (target includemod.ml)
   (deps   ../raw-compiler/includemod.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target typetexp_with_sexp.ml)
+  (target typetexp.ml)
   (deps   ../raw-compiler/typetexp.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target primitive_with_sexp.ml)
+  (target primitive.ml)
   (deps   ../raw-compiler/primitive.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target path_with_sexp.ml)
+  (target path.ml)
   (deps   ../raw-compiler/path.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target types_with_sexp.ml)
+  (target types.ml)
   (deps   ../raw-compiler/types.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target typedtree_with_sexp.ml)
+  (target typedtree.ml)
   (deps   ../raw-compiler/typedtree.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target longident_with_sexp.ml)
+  (target longident.ml)
   (deps   ../raw-compiler/longident.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target location_with_sexp.ml)
+  (target location.ml)
   (deps   ../raw-compiler/location.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target asttypes_with_sexp.ml)
+  (target asttypes.ml)
   (deps   ../raw-compiler/asttypes.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
-  (target parsetree_with_sexp.ml)
+  (target parsetree.ml)
   (deps   ../raw-compiler/parsetree.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
