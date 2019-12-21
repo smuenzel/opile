@@ -13,6 +13,12 @@
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
+  (target cmm.ml)
+  (deps   ../raw-compiler/cmm.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
   (target clambda.ml)
   (deps   ../raw-compiler/clambda.mli)
   (mode   promote)

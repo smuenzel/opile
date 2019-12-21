@@ -24,6 +24,7 @@ module Freshening = Freshening
 module Compilation_unit = Compilation_unit
 module Clambda = Clambda
 module Backend_var = Backend_var
+module Cmm = Cmm
 module Arg_helper                    = Arg_helper
 module Ast_helper                    = Ast_helper
 module Ast_invariants                = Ast_invariants

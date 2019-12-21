@@ -64,11 +64,6 @@ let backend = (module Backend : Backend_intf.S)
 
 let f str =
   let parsetree = Parse.implementation (Lexing.from_string str) in
-  let cleaned_parsetree =
-    parsetree
-    |> [%sexp_of: Parsetree.structure]
-    |> clean_sexp
-  in
   Load_path.init
     (ld_library_path_contents ())
   ;
@@ -93,26 +88,11 @@ let f str =
     in
     ttstr
   in
-  let cleaned_typedtree =
-    typedtree
-    |> [%sexp_of: Typedtree.structure]
-    |> clean_sexp
-  in
   let lambda =
     Translmod.transl_implementation_flambda "Test" (typedtree,Tcoerce_none)
   in
-  let cleaned_lambda =
-    lambda
-    |> [%sexp_of: Lambda.program]
-    |> clean_sexp
-  in
   let simplif_lambda =
     Simplif.simplify_lambda "Test" lambda.code
-  in
-  let cleaned_simplif_lambda =
-    simplif_lambda
-    |> [%sexp_of: Lambda.lambda]
-    |> clean_sexp
   in
   let flambda : Flambda.program =
     Middle_end.middle_end
@@ -124,44 +104,105 @@ let f str =
       ~module_ident:lambda.module_ident
       ~module_initializer:simplif_lambda
   in
-  let cleaned_flambda =
-    flambda
-    |> [%sexp_of: Flambda.program]
-    |> clean_sexp
-  in
   let export_info =
     Build_export_info.build_transient ~backend flambda
   in
   let clambda_convert = 
     Flambda_to_clambda.convert (flambda,export_info)
   in
-  let cleaned_clambda_convert =
-    clambda_convert
-    |> [%sexp_of: Flambda_to_clambda.result]
+  let un_anf_clambda =
+    Un_anf.apply
+      ~ppf_dump:empty_formatter
+      clambda_convert.expr
+      ~what:""
   in
-  let p name thing =
+  let rec do_un_anf_ustructured_constant = function
+    | Clambda.Uconst_closure (ufl, str, uconst) ->
+      Clambda.Uconst_closure
+        ( List.map ufl ~f:do_un_anf_ufunction
+        , str
+        , List.map uconst ~f:do_un_anf_uconstant
+        )
+    | other -> other
+  and do_un_anf_ufunction (uf : Clambda.ufunction) =
+    { uf with body = do_un_anf_ulambda uf.body }
+  and do_un_anf_uconstant = function
+    | Clambda.Uconst_ref (str, Some usc) ->
+      Clambda.Uconst_ref (str, Some (do_un_anf_ustructured_constant usc))
+    | other -> other
+  and do_un_anf_ulambda ul =
+    Un_anf.apply
+      ~ppf_dump:empty_formatter
+      ul
+      ~what:""
+  in
+  let un_anf_functions =
+    clambda_convert.structured_constants
+    |> Symbol.Map.map
+         do_un_anf_ustructured_constant
+  in
+  let cmm : Cmm.phrase list =
+    let constants =
+      List.map ~f:(fun (symbol, definition) ->
+          { Clambda.symbol = Linkage_name.to_string (Symbol.label symbol);
+            exported = true;
+            definition;
+            provenance = None;
+          })
+        (Symbol.Map.bindings un_anf_functions)
+    in
+    Cmmgen.compunit
+      ~ppf_dump:empty_formatter
+      (un_anf_clambda, clambda_convert.preallocated_blocks, constants)
+  in
+  let asm =
+    Emitaux.reset ();
+    let pread, pwrite = Unix.pipe () in
+    let cread = Unix.in_channel_of_descr pread in
+    let cwrite = Unix.out_channel_of_descr pwrite in
+    Emitaux.output_channel := cwrite;
+    Emit.begin_assembly ();
+    List.iter cmm
+      ~f:(Asmgen.compile_phrase ~ppf_dump:empty_formatter)
+    ;
+    Emit.end_assembly ();
+    Out_channel.close cwrite;
+    In_channel.input_all cread
+  in
+  let print_with_name name f =
     print_endline name;
     print_endline "------";
-    print_s thing;
+    f ();
     print_endline "";
   in
-  p "parsetree" cleaned_parsetree;
-  p "typedtree" cleaned_typedtree;
-  p "lambda" cleaned_lambda;
-  p "simplif_lambda" cleaned_simplif_lambda;
-  p "flambda" cleaned_flambda;
-  p "cleaned_clambda_convert" cleaned_clambda_convert
+  let p (type a) name (sexp_of : a -> Sexp.t) thing =
+    let sexp = 
+      sexp_of thing
+      |> clean_sexp
+    in
+    print_with_name name (fun () -> print_s sexp);
+  in
+  p "parsetree" [%sexp_of: Parsetree.structure] parsetree;
+  p "typedtree" [%sexp_of: Typedtree.structure] typedtree;
+  p "lambda" [%sexp_of: Lambda.program] lambda;
+  p "simplif_lambda" [%sexp_of: Lambda.lambda] simplif_lambda;
+  p "flambda" [%sexp_of: Flambda.program] flambda;
+  p "clambda_convert" [%sexp_of: Flambda_to_clambda.result] clambda_convert;
+  p "un_anf_clambda" [%sexp_of: Clambda.ustructured_constant Symbol.Map.t] un_anf_functions;
+  p "cmm" [%sexp_of: Cmm.phrase list] cmm;
+  print_with_name "asm" (fun () -> print_endline asm);
+;;
 
 let%expect_test "hello" =
   f {|
     let f z () =
       let x, y =
         match z with
-        | 0 -> 0, 1
-        | 1 -> 1, 0
+        | 0 -> 0, (z - 1)
+        | 1 -> 122, 0
         | _ -> assert false
       in
-      x + y
+      Some (x + y)
     |};
   [%expect {|
     (((pstr_desc
