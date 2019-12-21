@@ -72,8 +72,8 @@ module Ns = struct
           (Longident.Ldot ((Longident.dot (Lident "Compiler_without_sexp") module_name), typename))
 
   let add_manifest ~module_name (td : type_declaration) =
-    match td.ptype_kind with
-    | Ptype_variant _ | Ptype_record _ ->
+    match td.ptype_kind, td.ptype_manifest with
+    | (Ptype_variant _ | Ptype_record _), _ ->
       let params = List.map td.ptype_params ~f:fst in
       let ptype_manifest =
         Ast_helper.Typ.constr
@@ -85,7 +85,24 @@ module Ns = struct
         ptype_manifest
       ; ptype_attributes = []
       }
-    | Ptype_abstract | Ptype_open -> 
+    | Ptype_abstract, None ->
+      let params = List.map td.ptype_params ~f:fst in
+      let ptype_manifest =
+        Ast_helper.Typ.constr
+          ~attrs:[Ast_helper.Attr.mk (mknoloc "sexp.opaque") (PStr [])]
+          (create_ocamlcommon_ident ~module_name ~typename:td.ptype_name.txt)
+          params
+        |> Some
+      in
+      { td with
+        ptype_manifest
+      ; ptype_attributes = []
+      }
+    | Ptype_abstract, _ ->
+      { td with
+        ptype_attributes = []
+      }
+    | Ptype_open, _ -> 
       { td with
         ptype_attributes = []
       }
@@ -108,10 +125,9 @@ module Ns = struct
          ~manifest (mknoloc "x")) 
 
   let modsubst ~module_name:_ subst_module_name : with_constraint =
-    let subst_module_name = Longident.last_exn subst_module_name in
     Pwith_modsubst
-      ( (mknoloc (Lident subst_module_name))
-      , (mknoloc (Lident subst_module_name))
+      ( (mknoloc (Lident (Longident.last_exn subst_module_name)))
+      , (mknoloc subst_module_name)
       )
 
   let mk_inc ~module_name types modules =
@@ -199,7 +215,10 @@ module Ns = struct
         let open Ast_helper in
         Str.module_ (Mb.mk (mknoloc pmd_name) (Mod.structure converted))
       in
-      let modules = Set.add modules module_name in 
+      let modules =
+        let modname = Longident.dot (Lident "Compiler_without_sexp") module_name in
+        Set.add modules modname
+      in 
       { acc with modules}, [ converted ]
     | Psig_module psm ->
       module_special_case ~module_name ~acc psm
@@ -240,19 +259,17 @@ module Ns = struct
     in
     match psm with
     | {pmd_name = { txt = pmd_name; _}; pmd_type; pmd_loc; _ }-> 
-      eprint_s [%message "calling"];
       Ast_pattern.parse p pmd_loc pmd_type
         ~on_error:(fun () ->
-            eprint_s [%message "error" (pmd_name)];
             (acc, []))
         (fun left right _ ->
            match left, right with
-           | Ldot (Lident ("Map" | "Set"), "S"), _ ->
+           | Ldot (Lident ("Map"), "S"), _ ->
              let open Ast_helper in
+             let modname =
+               Longident.dot (Lident "Compiler_without_sexp") (Ldot (module_name, pmd_name))
+             in
              let expr = 
-               let modname =
-                 Longident.dot (Lident "Compiler_without_sexp") (Ldot (module_name, pmd_name))
-               in
                Str.module_
                  (Mb.mk
                     (mknoloc pmd_name)
@@ -269,12 +286,35 @@ module Ns = struct
                     )
                  )
              in
-             eprint_s [%message "okay" (pmd_name)];
-             let modules = Set.add acc.modules left in 
+             let modules = Set.add acc.modules modname in 
+             { acc with modules}
+           , [ expr ]
+           | Ldot (Lident ("Set"), "S"), _ ->
+             let open Ast_helper in
+             let modname =
+               Longident.dot (Lident "Compiler_without_sexp") (Ldot (module_name, pmd_name))
+             in
+             let expr = 
+               Str.module_
+                 (Mb.mk
+                    (mknoloc pmd_name)
+                    (Mod.structure
+                       ([ Str.include_ (Ast_helper.Incl.mk (Mod.ident (mknoloc modname)))
+                        ] 
+                        @ [%str
+                          let sexp_of_t t =
+                            fold (fun key acc ->
+                                key :: acc) t [] 
+                            |> [%sexp_of: (string) list]
+                        ]
+                       )
+                    )
+                 )
+             in
+             let modules = Set.add acc.modules modname in 
              { acc with modules}
            , [ expr ]
            | _ ->
-             eprint_s [%message "other"];
              acc, [])
 
 
