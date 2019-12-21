@@ -18,10 +18,23 @@ and filter_list : Sexp.t -> Sexp.t = function
   | List x -> List (List.filter x ~f:(function | List [ ] -> false | _ -> true))
   | other -> other
 
+let ld_library_path_contents () =
+  match Sys.getenv_exn "CAML_LD_LIBRARY_PATH" with
+  | s ->
+      Misc.split_path_contents s
 
 let f2 str =
   let ttstr, _, _, _ =
-    let env = Env.empty in
+    Cmt_format.clear ();
+    Typecore.reset_delayed_checks ();
+    Env.reset_required_globals ();
+    let env =
+      Typemod.initial_env
+        ~loc:Location.none
+        ~safe_string:true
+        ~initially_opened_module:(Some "Stdlib")
+        ~open_implicit_modules:[]
+    in
     Typemod.type_structure env str Location.none
   in
   ttstr
@@ -36,8 +49,20 @@ let f str =
   in
   let typedtree = 
     let ttstr, _, _, _ =
-      let env = Env.empty in
       try
+        Load_path.init
+          (ld_library_path_contents ())
+        ;
+        Cmt_format.clear ();
+        Typecore.reset_delayed_checks ();
+        Env.reset_required_globals ();
+        let env =
+          Typemod.initial_env
+            ~loc:Location.none
+            ~safe_string:true
+            ~initially_opened_module:(Some "Stdlib")
+            ~open_implicit_modules:[]
+        in
         Typemod.type_structure env parsetree Location.none
       with
       | Typetexp.Error (_,_,error) ->
@@ -55,7 +80,7 @@ let f str =
 
 let%expect_test "hello" =
   f {|
-    let f () =
+    let f z () =
       let x, y =
         match z with
         | 0 -> 0, 1
