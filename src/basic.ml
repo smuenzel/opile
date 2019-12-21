@@ -69,15 +69,16 @@ let f str =
     |> [%sexp_of: Parsetree.structure]
     |> clean_sexp
   in
+  Load_path.init
+    (ld_library_path_contents ())
+  ;
+  Cmt_format.clear ();
+  Typecore.reset_delayed_checks ();
+  Env.reset_required_globals ();
+  Compilenv.reset "Test";
   let typedtree = 
     let ttstr, _, _, _ =
       try
-        Load_path.init
-          (ld_library_path_contents ())
-        ;
-        Cmt_format.clear ();
-        Typecore.reset_delayed_checks ();
-        Env.reset_required_globals ();
         let env =
           Typemod.initial_env
             ~loc:Location.none
@@ -126,11 +127,19 @@ let f str =
   let cleaned_flambda =
     flambda
     |> [%sexp_of: Flambda.program]
+    |> clean_sexp
   in
-  print_s cleaned_parsetree;
-  print_s cleaned_typedtree;
-  print_s cleaned_lambda;
-  print_s cleaned_simplif_lambda
+  let p name thing =
+    print_endline name;
+    print_endline "------";
+    print_s thing;
+    print_endline "";
+  in
+  p "parsetree" cleaned_parsetree;
+  p "typedtree" cleaned_typedtree;
+  p "lambda" cleaned_lambda;
+  p "simplif_lambda" cleaned_simplif_lambda;
+  p "flambda" cleaned_flambda
 
 let%expect_test "hello" =
   f {|
