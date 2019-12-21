@@ -38,6 +38,20 @@ end
 
 module Ns = struct
 
+  let lident_replace = 
+    let replace =
+      Longident.Map.of_alist_exn
+        [ Longident.parse "Digest.t", Longident.parse "Caml_digest.t"
+        ]
+    in
+    object
+      inherit Ast_traverse.map
+
+      method! longident lident =
+        Map.find replace lident
+        |> Option.value ~default:lident
+    end
+
   type t =
     { types : core_type list String.Map.t
     ; modules : Longident.Set.t
@@ -180,7 +194,10 @@ module Ns = struct
     let {types; modules; has_values} , as_struct =
       List.fold_map signature ~init:empty ~f:(traverse_sig ~module_name)
     in
-    let as_struct = List.concat as_struct in
+    let as_struct =
+      List.concat as_struct
+      |> lident_replace#structure
+    in
     if not has_values
     then as_struct
     else begin

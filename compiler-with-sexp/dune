@@ -12,6 +12,12 @@
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
+  (target cmi_format.ml)
+  (deps   ../raw-compiler/cmi_format.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
   (target env.ml)
   (deps   ../raw-compiler/env.mli)
   (mode   promote)
