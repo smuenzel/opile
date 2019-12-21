@@ -3,11 +3,30 @@
   (libraries core compiler_without_sexp)
   (inline_tests)
   (preprocess (pps ppx_expect ppx_jane))
+  (flags (:standard -w -30))
   )
 
 (rule
   (target lexing.ml)
   (deps   ../raw-compiler/lexing.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target allocated_const.ml)
+  (deps   ../raw-compiler/allocated_const.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target projection.ml)
+  (deps   ../raw-compiler/projection.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target flambda.ml)
+  (deps   ../raw-compiler/flambda.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 

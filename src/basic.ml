@@ -41,6 +41,27 @@ let f2 str =
   ttstr
   |> [%sexp_of: Typedtree.structure]
 
+let empty_formatter : Format.formatter =
+  Format.make_formatter (fun _ _ _ -> ()) (fun () -> ())
+
+module Backend = struct
+  (* See backend_intf.mli. *)
+
+  let symbol_for_global' = Compilenv.symbol_for_global'
+  let closure_symbol = Compilenv.closure_symbol
+
+  let really_import_approx = Import_approx.really_import_approx
+  let import_symbol = Import_approx.import_symbol
+
+  let size_int = Arch.size_int
+  let big_endian = Arch.big_endian
+
+  let max_sensible_number_of_arguments =
+    (* The "-1" is to allow for a potential closure environment parameter. *)
+    Proc.max_arguments_for_tailcalls - 1
+end
+let backend = (module Backend : Backend_intf.S)
+
 let f str =
   let parsetree = Parse.implementation (Lexing.from_string str) in
   let cleaned_parsetree =
@@ -84,9 +105,32 @@ let f str =
     |> [%sexp_of: Lambda.program]
     |> clean_sexp
   in
+  let simplif_lambda =
+    Simplif.simplify_lambda "Test" lambda.code
+  in
+  let cleaned_simplif_lambda =
+    simplif_lambda
+    |> [%sexp_of: Lambda.lambda]
+    |> clean_sexp
+  in
+  let flambda : Flambda.program =
+    Middle_end.middle_end
+      ~ppf_dump:empty_formatter
+      ~prefixname:""
+      ~backend
+      ~size:lambda.main_module_block_size
+      ~filename:"test.ml"
+      ~module_ident:lambda.module_ident
+      ~module_initializer:simplif_lambda
+  in
+  let cleaned_flambda =
+    flambda
+    |> [%sexp_of: Flambda.program]
+  in
   print_s cleaned_parsetree;
   print_s cleaned_typedtree;
-  print_s cleaned_lambda
+  print_s cleaned_lambda;
+  print_s cleaned_simplif_lambda
 
 let%expect_test "hello" =
   f {|
