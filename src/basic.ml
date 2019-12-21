@@ -5,6 +5,7 @@ open! Compiler_with_sexp
 let rec clean_sexp : Sexp.t -> Sexp.t = function
   | List [ Atom x; _ ] when is_loc x -> List [ ]
   | List [ Atom "txt"; txt ] -> clean_sexp txt
+  | List (List [ Atom "loc_start"; _ ] :: _) -> List [ ]
   | List list ->
     List (List.map ~f:clean_sexp list)
     |> omit_nil
@@ -75,8 +76,17 @@ let f str =
     |> [%sexp_of: Typedtree.structure]
     |> clean_sexp
   in
+  let lambda =
+    Translmod.transl_implementation_flambda "Test" (typedtree,Tcoerce_none)
+  in
+  let cleaned_lambda =
+    lambda
+    |> [%sexp_of: Lambda.program]
+    |> clean_sexp
+  in
   print_s cleaned_parsetree;
-  print_s cleaned_typedtree
+  print_s cleaned_typedtree;
+  print_s cleaned_lambda
 
 let%expect_test "hello" =
   f {|
