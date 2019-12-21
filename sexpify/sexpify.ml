@@ -235,6 +235,17 @@ module Ns = struct
          Ast_helper.Str.type_ rec_flag types
          |> Some
        ]} *)
+    | Psig_module {pmd_name = { txt = pmd_name; _}; pmd_type = { pmty_desc = Pmty_alias alias; _} ; _ }-> 
+      let converted =
+        let open Ast_helper in
+        Str.module_ (Mb.mk (mknoloc pmd_name) (Mod.ident alias))
+      in
+      let modules =
+        let module_name = Longident.Ldot (module_name, pmd_name) in
+        let modname = Longident.dot (Lident "Compiler_without_sexp") module_name in
+        Set.add modules modname
+      in 
+      { acc with modules }, [ converted ]
     | Psig_module {pmd_name = { txt = pmd_name; _}; pmd_type = { pmty_desc = Pmty_signature msig ; _} ; _ }-> 
       let module_name = Longident.Ldot (module_name, pmd_name) in
       let converted =

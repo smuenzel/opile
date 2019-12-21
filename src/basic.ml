@@ -129,6 +129,16 @@ let f str =
     |> [%sexp_of: Flambda.program]
     |> clean_sexp
   in
+  let export_info =
+    Build_export_info.build_transient ~backend flambda
+  in
+  let clambda_convert = 
+    Flambda_to_clambda.convert (flambda,export_info)
+  in
+  let cleaned_clambda_convert =
+    clambda_convert
+    |> [%sexp_of: Flambda_to_clambda.result]
+  in
   let p name thing =
     print_endline name;
     print_endline "------";
@@ -139,7 +149,8 @@ let f str =
   p "typedtree" cleaned_typedtree;
   p "lambda" cleaned_lambda;
   p "simplif_lambda" cleaned_simplif_lambda;
-  p "flambda" cleaned_flambda
+  p "flambda" cleaned_flambda;
+  p "cleaned_clambda_convert" cleaned_clambda_convert
 
 let%expect_test "hello" =
   f {|

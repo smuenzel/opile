@@ -13,6 +13,36 @@
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
 
 (rule
+  (target clambda.ml)
+  (deps   ../raw-compiler/clambda.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target freshening.ml)
+  (deps   ../raw-compiler/freshening.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target simple_value_approx.ml)
+  (deps   ../raw-compiler/simple_value_approx.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target export_info.ml)
+  (deps   ../raw-compiler/export_info.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target flambda_to_clambda.ml)
+  (deps   ../raw-compiler/flambda_to_clambda.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
   (target allocated_const.ml)
   (deps   ../raw-compiler/allocated_const.mli)
   (mode   promote)
