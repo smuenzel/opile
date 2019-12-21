@@ -253,7 +253,7 @@ module Ns = struct
               ~cstrs:nil
               ~kind:ptype_abstract
               ~private_:public
-              ~manifest:(some (ptyp_constr (lident (string "string")) nil))
+              ~manifest:(some __)
            )
          ^:: nil)
     in
@@ -262,7 +262,7 @@ module Ns = struct
       Ast_pattern.parse p pmd_loc pmd_type
         ~on_error:(fun () ->
             (acc, []))
-        (fun left right _ ->
+        (fun left right _ keytype ->
            match left, right with
            | Ldot (Lident ("Map"), "S"), _ ->
              let open Ast_helper in
@@ -280,7 +280,7 @@ module Ns = struct
                           let sexp_of_t sexp_of_a t =
                             fold (fun key data acc ->
                                 (key,data) :: acc) t [] 
-                            |> [%sexp_of: (string * a) list]
+                            |> [%sexp_of: ([%t keytype] * a) list]
                         ]
                        )
                     )
@@ -305,7 +305,7 @@ module Ns = struct
                           let sexp_of_t t =
                             fold (fun key acc ->
                                 key :: acc) t [] 
-                            |> [%sexp_of: (string) list]
+                            |> [%sexp_of: [%t keytype] list]
                         ]
                        )
                     )

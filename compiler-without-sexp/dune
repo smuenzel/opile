@@ -1,0 +1,4 @@
+(library
+  (name compiler_without_sexp)
+  (libraries core ocaml-compiler-libs.optcomp ocaml-compiler-libs.common)
+  )
