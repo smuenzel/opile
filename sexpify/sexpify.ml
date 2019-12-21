@@ -38,18 +38,30 @@ end
 
 module Ns = struct
 
-  let lident_replace = 
+  let cleanup = 
     let replace =
       Longident.Map.of_alist_exn
         [ Longident.parse "Digest.t", Longident.parse "Caml_digest.t"
         ]
     in
+    let filter_attr attrs =
+      List.filter attrs
+        ~f:(fun attr ->
+            match attr.attr_name.txt with
+            | "ocaml.doc" -> false
+            | _ -> true
+          )
+    in
     object
-      inherit Ast_traverse.map
+      inherit Ast_traverse.map as super
 
       method! longident lident =
         Map.find replace lident
         |> Option.value ~default:lident
+
+      method! attributes a =
+        let result = super#attributes a in
+        filter_attr result
     end
 
   type t =
@@ -196,7 +208,7 @@ module Ns = struct
     in
     let as_struct =
       List.concat as_struct
-      |> lident_replace#structure
+      |> cleanup#structure
     in
     if not has_values
     then as_struct

@@ -3,12 +3,10 @@ open! Typedtree
 open! Types
 
 type mark = Compiler_without_sexp.Includemod.mark =
-  | Mark_both [@ocaml.doc " Mark definitions used from both arguments "]
+  | Mark_both
   | Mark_positive
-      [@ocaml.doc " Mark definitions used from the positive (first) argument "]
   | Mark_negative
-      [@ocaml.doc " Mark definitions used from the negative (second) argument "]
-  | Mark_neither [@ocaml.doc " Do not mark definitions used from either argument "]
+  | Mark_neither
 [@@deriving sexp_of]
 
 type symptom = Compiler_without_sexp.Includemod.symptom =

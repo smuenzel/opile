@@ -10,57 +10,18 @@ type type_expr = Compiler_without_sexp.Types.type_expr =
 
 and type_desc = Compiler_without_sexp.Types.type_desc =
   | Tvar of string option
-      [@ocaml.doc
-        " [Tvar (Some \"a\")] ==> ['a] or ['_a]\n      [Tvar None]       ==> [_] "]
   | Tarrow of arg_label * type_expr * type_expr * commutable
-      [@ocaml.doc
-        " [Tarrow (Nolabel,      e1, e2, c)] ==> [e1    -> e2]\n\
-        \      [Tarrow (Labelled \"l\", e1, e2, c)] ==> [l:e1  -> e2]\n\
-        \      [Tarrow (Optional \"l\", e1, e2, c)] ==> [?l:e1 -> e2]\n\n\
-        \      See [commutable] for the last argument. "]
-  | Ttuple of type_expr list [@ocaml.doc " [Ttuple [t1;...;tn]] ==> [(t1 * ... * tn)] "]
+  | Ttuple of type_expr list
   | Tconstr of Path.t * type_expr list * abbrev_memo ref
-      [@ocaml.doc
-        " [Tconstr (`A.B.t', [t1;...;tn], _)] ==> [(t1,...,tn) A.B.t]\n\
-        \      The last parameter keep tracks of known expansions, see [abbrev_memo]. "]
   | Tobject of type_expr * (Path.t * type_expr list) option ref
-      [@ocaml.doc
-        " [Tobject (`f1:t1;...;fn: tn', `None')] ==> [< f1: t1; ...; fn: tn >]\n\
-        \      f1, fn are represented as a linked list of types using Tfield and Tnil\n\
-        \      constructors.\n\n\
-        \      [Tobject (_, `Some (`A.ct', [t1;...;tn]')] ==> [(t1, ..., tn) A.ct].\n\
-        \      where A.ct is the type of some class.\n\n\
-        \      There are also special cases for so-called \"class-types\", cf. [Typeclass]\n\
-        \      and [Ctype.set_object_name]:\n\n\
-        \        [Tobject (Tfield(_,_,...(Tfield(_,_,rv)...),\n\
-        \                         Some(`A.#ct`, [rv;t1;...;tn])]\n\
-        \             ==> [(t1, ..., tn) #A.ct]\n\
-        \        [Tobject (_, Some(`A.#ct`, [Tnil;t1;...;tn])] ==> [(t1, ..., tn) A.ct]\n\n\
-        \      where [rv] is the hidden row variable.\n\
-        \  "]
   | Tfield of string * field_kind * type_expr * type_expr
-      [@ocaml.doc " [Tfield (\"foo\", Fpresent, t, ts)] ==> [<...; foo : t; ts>] "]
-  | Tnil [@ocaml.doc " [Tnil] ==> [<...; >] "]
-  | Tlink of type_expr [@ocaml.doc " Indirection used by unification engine. "]
+  | Tnil
+  | Tlink of type_expr
   | Tsubst of type_expr
-      [@ocaml.doc
-        " [Tsubst] is used temporarily to store information in low-level\n\
-        \      functions manipulating representation of types, such as\n\
-        \      instantiation or copy.\n\
-        \      This constructor should not appear outside of these cases. "]
   | Tvariant of row_desc
-      [@ocaml.doc " Representation of polymorphic variants, see [row_desc]. "]
   | Tunivar of string option
-      [@ocaml.doc
-        " Occurrence of a type variable introduced by a\n\
-        \      forall quantifier / [Tpoly]. "]
   | Tpoly of type_expr * type_expr list
-      [@ocaml.doc
-        " [Tpoly (ty,tyl)] ==> ['a1... 'an. ty],\n\
-        \      where 'a1 ... 'an are names given to types in tyl\n\
-        \      and occurrences of those types in ty. "]
   | Tpackage of Path.t * Longident.t list * type_expr list
-      [@ocaml.doc " Type of a first-class module (a.k.a package). "]
 
 and row_desc = Compiler_without_sexp.Types.row_desc =
   { row_fields : (label * row_field) list
@@ -77,15 +38,9 @@ and row_field = Compiler_without_sexp.Types.row_field =
   | Rabsent
 
 and abbrev_memo = Compiler_without_sexp.Types.abbrev_memo =
-  | Mnil [@ocaml.doc " No known abbreviation "]
+  | Mnil
   | Mcons of private_flag * Path.t * type_expr * type_expr * abbrev_memo
-      [@ocaml.doc
-        " Found one abbreviation.\n\
-        \      A valid abbreviation should be at least as visible and reachable by the\n\
-        \      same path.\n\
-        \      The first expression is the abbreviation and the second the expansion. "]
   | Mlink of abbrev_memo ref
-      [@ocaml.doc " Abbreviations can be found after this indirection "]
 
 and field_kind = Compiler_without_sexp.Types.field_kind =
   | Fvar of field_kind option ref

@@ -21,59 +21,23 @@ type pattern = Compiler_without_sexp.Typedtree.pattern =
 
 and pat_extra = Compiler_without_sexp.Typedtree.pat_extra =
   | Tpat_constraint of core_type
-      [@ocaml.doc
-        " P : T          { pat_desc = P\n\
-        \                           ; pat_extra = (Tpat_constraint T, _, _) :: ... }\n\
-        \         "]
   | Tpat_type of Path.t * Longident.t loc
-      [@ocaml.doc
-        " #tconst        { pat_desc = disjunction\n\
-        \                           ; pat_extra = (Tpat_type (P, \"tconst\"), _, _) :: \
-         ...}\n\n\
-        \                           where [disjunction] is a [Tpat_or _] representing the\n\
-        \                           branches of [tconst].\n\
-        \         "]
   | Tpat_open of Path.t * Longident.t loc * Env.t
   | Tpat_unpack
-      [@ocaml.doc
-        " (module P)     { pat_desc  = Tpat_var \"P\"\n\
-        \                           ; pat_extra = (Tpat_unpack, _, _) :: ... }\n\
-        \         "]
 
 and pattern_desc = Compiler_without_sexp.Typedtree.pattern_desc =
-  | Tpat_any [@ocaml.doc " _ "]
-  | Tpat_var of Ident.t * string loc [@ocaml.doc " x "]
-  | Tpat_alias of pattern * Ident.t * string loc [@ocaml.doc " P as a "]
-  | Tpat_constant of constant [@ocaml.doc " 1, 'a', \"true\", 1.0, 1l, 1L, 1n "]
+  | Tpat_any
+  | Tpat_var of Ident.t * string loc
+  | Tpat_alias of pattern * Ident.t * string loc
+  | Tpat_constant of constant
   | Tpat_tuple of pattern list
-      [@ocaml.doc " (P1, ..., Pn)\n\n            Invariant: n >= 2\n         "]
   | Tpat_construct of Longident.t loc * constructor_description * pattern list
-      [@ocaml.doc
-        " C                []\n\
-        \            C P              [P]\n\
-        \            C (P1, ..., Pn)  [P1; ...; Pn]\n\
-        \          "]
   | Tpat_variant of label * pattern option * row_desc ref
-      [@ocaml.doc
-        " `A             (None)\n\
-        \            `A P           (Some P)\n\n\
-        \            See {!Types.row_desc} for an explanation of the last parameter.\n\
-        \         "]
   | Tpat_record of (Longident.t loc * label_description * pattern) list * closed_flag
-      [@ocaml.doc
-        " { l1=P1; ...; ln=Pn }     (flag = Closed)\n\
-        \            { l1=P1; ...; ln=Pn; _}   (flag = Open)\n\n\
-        \            Invariant: n > 0\n\
-        \         "]
-  | Tpat_array of pattern list [@ocaml.doc " [| P1; ...; Pn |] "]
+  | Tpat_array of pattern list
   | Tpat_or of pattern * pattern * row_desc option
-      [@ocaml.doc
-        " P1 | P2\n\n\
-        \            [row_desc] = [Some _] when translating [Ppat_type _],\n\
-        \                         [None] otherwise.\n\
-        \         "]
-  | Tpat_lazy of pattern [@ocaml.doc " lazy P "]
-  | Tpat_exception of pattern [@ocaml.doc " exception P "]
+  | Tpat_lazy of pattern
+  | Tpat_exception of pattern
 
 and expression = Compiler_without_sexp.Typedtree.expression =
   { exp_desc : expression_desc
@@ -85,87 +49,32 @@ and expression = Compiler_without_sexp.Typedtree.expression =
   }
 
 and exp_extra = Compiler_without_sexp.Typedtree.exp_extra =
-  | Texp_constraint of core_type [@ocaml.doc " E : T "]
+  | Texp_constraint of core_type
   | Texp_coerce of core_type option * core_type
-      [@ocaml.doc
-        " E :> T           [Texp_coerce (None, T)]\n\
-        \            E : T0 :> T      [Texp_coerce (Some T0, T)]\n\
-        \         "]
-  | Texp_poly of core_type option [@ocaml.doc " Used for method bodies. "]
-  | Texp_newtype of string [@ocaml.doc " fun (type t) ->  "]
+  | Texp_poly of core_type option
+  | Texp_newtype of string
 
 and expression_desc = Compiler_without_sexp.Typedtree.expression_desc =
   | Texp_ident of Path.t * Longident.t loc * Types.value_description
-      [@ocaml.doc " x\n            M.x\n         "]
-  | Texp_constant of constant [@ocaml.doc " 1, 'a', \"true\", 1.0, 1l, 1L, 1n "]
+  | Texp_constant of constant
   | Texp_let of rec_flag * value_binding list * expression
-      [@ocaml.doc
-        " let P1 = E1 and ... and Pn = EN in E       (flag = Nonrecursive)\n\
-        \            let rec P1 = E1 and ... and Pn = EN in E   (flag = Recursive)\n\
-        \         "]
   | Texp_function of
       { arg_label : arg_label
       ; param : Ident.t
       ; cases : case list
       ; partial : partial
       }
-      [@ocaml.doc
-        " [Pexp_fun] and [Pexp_function] both translate to [Texp_function].\n\
-        \            See {!Parsetree} for more details.\n\n\
-        \            [param] is the identifier that is to be used to name the\n\
-        \            parameter of the function.\n\n\
-        \            partial =\n\
-        \              [Partial] if the pattern match is partial\n\
-        \              [Total] otherwise.\n\
-        \         "]
   | Texp_apply of expression * (arg_label * expression option) list
-      [@ocaml.doc
-        " E0 ~l1:E1 ... ~ln:En\n\n\
-        \            The expression can be None if the expression is abstracted over\n\
-        \            this argument. It currently appears when a label is applied.\n\n\
-        \            For example:\n\
-        \            let f x ~y = x + y in\n\
-        \            f ~y:3\n\n\
-        \            The resulting typedtree for the application is:\n\
-        \            Texp_apply (Texp_ident \"f/1037\",\n\
-        \                        [(Nolabel, None);\n\
-        \                         (Labelled \"y\", Some (Texp_constant Const_int 3))\n\
-        \                        ])\n\
-        \         "]
   | Texp_match of expression * case list * partial
-      [@ocaml.doc
-        " match E0 with\n\
-        \            | P1 -> E1\n\
-        \            | P2 | exception P3 -> E2\n\
-        \            | exception P4 -> E3\n\n\
-        \            [Texp_match (E0, [(P1, E1); (P2 | exception P3, E2);\n\
-        \                              (exception P4, E3)], _)]\n\
-        \         "]
   | Texp_try of expression * case list
-      [@ocaml.doc " try E with P1 -> E1 | ... | PN -> EN "]
-  | Texp_tuple of expression list [@ocaml.doc " (E1, ..., EN) "]
+  | Texp_tuple of expression list
   | Texp_construct of Longident.t loc * constructor_description * expression list
-      [@ocaml.doc
-        " C                []\n\
-        \            C E              [E]\n\
-        \            C (E1, ..., En)  [E1;...;En]\n\
-        \         "]
   | Texp_variant of label * expression option
   | Texp_record of
       { fields : (Types.label_description * record_label_definition) array
       ; representation : Types.record_representation
       ; extended_expression : expression option
       }
-      [@ocaml.doc
-        " { l1=P1; ...; ln=Pn }           (extended_expression = None)\n\
-        \            { E0 with l1=P1; ...; ln=Pn }   (extended_expression = Some E0)\n\n\
-        \            Invariant: n > 0\n\n\
-        \            If the type is { l1: t1; l2: t2 }, the expression\n\
-        \            { E0 with t2=P2 } is represented as\n\
-        \            Texp_record\n\
-        \              { fields = [| l1, Kept t1; l2 Override P2 |]; representation;\n\
-        \                extended_expression = Some E0 }\n\
-        \        "]
   | Texp_field of expression * Longident.t loc * label_description
   | Texp_setfield of expression * Longident.t loc * label_description * expression
   | Texp_array of expression list
@@ -195,7 +104,7 @@ and expression_desc = Compiler_without_sexp.Typedtree.expression_desc =
       }
   | Texp_unreachable
   | Texp_extension_constructor of Longident.t loc * Path.t
-  | Texp_open of open_declaration * expression [@ocaml.doc " let open[!] M in e "]
+  | Texp_open of open_declaration * expression
 
 and meth = Compiler_without_sexp.Typedtree.meth =
   | Tmeth_name of string
@@ -277,10 +186,7 @@ and module_expr = Compiler_without_sexp.Typedtree.module_expr =
 
 and module_type_constraint = Compiler_without_sexp.Typedtree.module_type_constraint =
   | Tmodtype_implicit
-      [@ocaml.doc
-        " The module type constraint has been synthesized during typechecking. "]
   | Tmodtype_explicit of module_type
-      [@ocaml.doc " The module type was in the source file. "]
 
 and module_expr_desc = Compiler_without_sexp.Typedtree.module_expr_desc =
   | Tmod_ident of Path.t * Longident.t loc
@@ -289,10 +195,6 @@ and module_expr_desc = Compiler_without_sexp.Typedtree.module_expr_desc =
   | Tmod_apply of module_expr * module_expr * module_coercion
   | Tmod_constraint of
       module_expr * Types.module_type * module_type_constraint * module_coercion
-      [@ocaml.doc
-        " ME          (constraint = Tmodtype_implicit)\n\
-        \        (ME : MT)   (constraint = Tmodtype_explicit MT)\n\
-        \     "]
   | Tmod_unpack of expression * Types.module_type
 
 and structure = Compiler_without_sexp.Typedtree.structure =
@@ -456,9 +358,7 @@ and with_constraint = Compiler_without_sexp.Typedtree.with_constraint =
 
 and core_type = Compiler_without_sexp.Typedtree.core_type =
   { mutable ctyp_desc : core_type_desc
-        [@ocaml.doc " mutable because of [Typeclass.declare_method] "]
   ; mutable ctyp_type : type_expr
-        [@ocaml.doc " mutable because of [Typeclass.declare_method] "]
   ; ctyp_env : Env.t
   ; ctyp_loc : Location.t
   ; ctyp_attributes : attributes

@@ -23,9 +23,6 @@ module Unification_trace = struct
   type 'a escape = 'a Compiler_without_sexp.Ctype.Unification_trace.escape =
     | Constructor of Path.t
     | Univ of type_expr
-        [@ocaml.doc
-          " The type_expr argument of [Univ] is always a [Tunivar _],\n\
-          \        we keep a [type_expr] to track renaming in {!Printtyp} "]
     | Self
     | Module_type of Path.t
     | Equation of 'a

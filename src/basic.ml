@@ -41,7 +41,7 @@ let f str =
         Typemod.type_structure env parsetree Location.none
       with
       | Typetexp.Error (_,_,error) ->
-        raise_s [%message "error typing" (error)]
+        raise_s [%message "error typing" (error : Typetexp.error)]
     in
     ttstr
   in

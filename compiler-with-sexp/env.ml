@@ -11,9 +11,6 @@ type summary = Compiler_without_sexp.Env.summary =
   | Env_class of summary * Ident.t * class_declaration
   | Env_cltype of summary * Ident.t * class_type_declaration
   | Env_open of summary * Path.t
-      [@ocaml.doc
-        " The string set argument of [Env_open] represents a list of module names\n\
-        \      to skip, i.e. that won't be imported in the toplevel namespace. "]
   | Env_functor_arg of summary * Ident.t
   | Env_constraints of summary * type_declaration Path.Map.t
   | Env_copy_types of summary * string list
@@ -54,7 +51,7 @@ type constructor_usage = Compiler_without_sexp.Env.constructor_usage =
 
 module Persistent_signature = struct
   type t = Compiler_without_sexp.Env.Persistent_signature.t =
-    { filename : string [@ocaml.doc " Name of the file containing the signature. "]
+    { filename : string
     ; cmi : Cmi_format.cmi_infos
     }
   [@@deriving sexp_of]
