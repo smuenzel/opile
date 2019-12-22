@@ -40,6 +40,7 @@ end
 let backend = (module Backend : Backend_intf.S)
 
 let compile_structure str =
+  Clflags.native_code := true;
   let parsetree = Parse.implementation (Lexing.from_string str) in
   Load_path.init
     (ld_library_path_contents ())

@@ -1,8 +1,7 @@
 (library
   (name compiler_with_sexp)
   (libraries core compiler_without_sexp)
-  (inline_tests)
-  (preprocess (pps ppx_expect ppx_jane))
+  (preprocess (pps ppx_jane))
   (flags (:standard -w -30))
   )
 

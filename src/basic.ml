@@ -779,13 +779,13 @@ let%expect_test "hello" =
               (Lprim (Pintcomp Cne)
                ((Lvar z_81) (Lconst (Const_base (Const_int 1)))))
               (Lstaticraise 1)
-              (Llet Strict Pgenval y_88 (Lconst (Const_base (Const_int 0)))
-               (Llet Strict Pgenval x_87 (Lconst (Const_base (Const_int 122)))
-                (Lstaticraise 2 ((Lvar y_88) (Lvar x_87))))))
-             (Llet Strict Pgenval y_86
+              (Llet Strict Pgenval y_89 (Lconst (Const_base (Const_int 0)))
+               (Llet Strict Pgenval x_88 (Lconst (Const_base (Const_int 122)))
+                (Lstaticraise 2 ((Lvar y_89) (Lvar x_88))))))
+             (Llet Strict Pgenval y_87
               (Lprim Psubint ((Lvar z_81) (Lconst (Const_base (Const_int 1)))))
-              (Llet Strict Pgenval x_85 (Lconst (Const_base (Const_int 0)))
-               (Lstaticraise 2 ((Lvar y_86) (Lvar x_85))))))
+              (Llet Strict Pgenval x_86 (Lconst (Const_base (Const_int 0)))
+               (Lstaticraise 2 ((Lvar y_87) (Lvar x_86))))))
             (Lprim (Praise Raise_regular)
              ((Lprim (Pmakeblock 0 Immutable)
                ((Lprim (Pgetglobal Assert_failure))
@@ -822,13 +822,13 @@ let%expect_test "hello" =
                 (Const_block 0
                  ((Const_base (Const_string "")) (Const_base (Const_int 7))
                   (Const_base (Const_int 15)))))))))
-           (Llet Strict Pgenval y_88 (Lconst (Const_base (Const_int 0)))
-            (Llet Strict Pgenval x_87 (Lconst (Const_base (Const_int 122)))
-             (Lstaticraise 2 ((Lvar y_88) (Lvar x_87))))))
-          (Llet Strict Pgenval y_86
+           (Llet Strict Pgenval y_89 (Lconst (Const_base (Const_int 0)))
+            (Llet Strict Pgenval x_88 (Lconst (Const_base (Const_int 122)))
+             (Lstaticraise 2 ((Lvar y_89) (Lvar x_88))))))
+          (Llet Strict Pgenval y_87
            (Lprim Psubint ((Lvar z_81) (Lconst (Const_base (Const_int 1)))))
-           (Llet Strict Pgenval x_85 (Lconst (Const_base (Const_int 0)))
-            (Lstaticraise 2 ((Lvar y_86) (Lvar x_85))))))
+           (Llet Strict Pgenval x_86 (Lconst (Const_base (Const_int 0)))
+            (Lstaticraise 2 ((Lvar y_87) (Lvar x_86))))))
          (2 ((y_83 Pintval) (x_82 Pintval)))
          (Lprim (Pmakeblock 0 Immutable ((Pintval)))
           ((Lprim Paddint ((Lvar x_82) (Lvar y_83)))))))
@@ -956,36 +956,36 @@ let%expect_test "hello" =
        (camlTest__f_45
         (Uconst_closure
          (((label camlTest__f_5) (arity 2)
-           (params ((z/91 Pgenval) (param/90 Pgenval))) (return Pgenval)
+           (params ((z/92 Pgenval) (param/91 Pgenval))) (return Pgenval)
            (body
-            (Ulet Immutable Pgenval Pintcomp_arg/92 (Uconst (Uconst_int 0))
-             (Ulet Immutable Pgenval Pintcomp/93
-              (Uprim (Pintcomp Cne) ((Uvar z/91) (Uvar Pintcomp_arg/92)))
-              (Ucatch 7 ((y/95 Pgenval) (x/94 Pgenval))
-               (Uifthenelse (Uvar Pintcomp/93)
-                (Ulet Immutable Pgenval Pintcomp_arg/101 (Uconst (Uconst_int 1))
-                 (Ulet Immutable Pgenval Pintcomp/102
-                  (Uprim (Pintcomp Cne) ((Uvar z/91) (Uvar Pintcomp_arg/101)))
-                  (Uifthenelse (Uvar Pintcomp/102)
-                   (Ulet Immutable Pgenval raise_arg/105
+            (Ulet Immutable Pgenval Pintcomp_arg/93 (Uconst (Uconst_int 0))
+             (Ulet Immutable Pgenval Pintcomp/94
+              (Uprim (Pintcomp Cne) ((Uvar z/92) (Uvar Pintcomp_arg/93)))
+              (Ucatch 7 ((y/96 Pgenval) (x/95 Pgenval))
+               (Uifthenelse (Uvar Pintcomp/94)
+                (Ulet Immutable Pgenval Pintcomp_arg/102 (Uconst (Uconst_int 1))
+                 (Ulet Immutable Pgenval Pintcomp/103
+                  (Uprim (Pintcomp Cne) ((Uvar z/92) (Uvar Pintcomp_arg/102)))
+                  (Uifthenelse (Uvar Pintcomp/103)
+                   (Ulet Immutable Pgenval raise_arg/106
                     (Uconst (Uconst_ref camlTest__Pmakeblock_46))
-                    (Ulet Immutable Pgenval raise/106
-                     (Uprim (Praise Raise_regular) ((Uvar raise_arg/105)))
-                     (Uvar raise/106)))
-                   (Ulet Immutable Pgenval y/103 (Uconst (Uconst_int 0))
-                    (Ulet Immutable Pgenval x/104 (Uconst (Uconst_int 122))
-                     (Ustaticfail 7 ((Uvar y/103) (Uvar x/104))))))))
-                (Ulet Immutable Pgenval Psubint_arg/98 (Uconst (Uconst_int 1))
-                 (Ulet Immutable Pgenval Psubint/99
-                  (Uprim Psubint ((Uvar z/91) (Uvar Psubint_arg/98)))
-                  (Ulet Immutable Pgenval x/100 (Uconst (Uconst_int 0))
-                   (Ustaticfail 7 ((Uvar Psubint/99) (Uvar x/100)))))))
-               (Ulet Immutable Pgenval Pmakeblock_arg/96
-                (Uprim Paddint ((Uvar x/94) (Uvar y/95)))
-                (Ulet Immutable Pgenval Pmakeblock/97
+                    (Ulet Immutable Pgenval raise/107
+                     (Uprim (Praise Raise_regular) ((Uvar raise_arg/106)))
+                     (Uvar raise/107)))
+                   (Ulet Immutable Pgenval y/104 (Uconst (Uconst_int 0))
+                    (Ulet Immutable Pgenval x/105 (Uconst (Uconst_int 122))
+                     (Ustaticfail 7 ((Uvar y/104) (Uvar x/105))))))))
+                (Ulet Immutable Pgenval Psubint_arg/99 (Uconst (Uconst_int 1))
+                 (Ulet Immutable Pgenval Psubint/100
+                  (Uprim Psubint ((Uvar z/92) (Uvar Psubint_arg/99)))
+                  (Ulet Immutable Pgenval x/101 (Uconst (Uconst_int 0))
+                   (Ustaticfail 7 ((Uvar Psubint/100) (Uvar x/101)))))))
+               (Ulet Immutable Pgenval Pmakeblock_arg/97
+                (Uprim Paddint ((Uvar x/95) (Uvar y/96)))
+                (Ulet Immutable Pgenval Pmakeblock/98
                  (Uprim (Pmakeblock 0 Immutable ((Pintval)))
-                  ((Uvar Pmakeblock_arg/96)))
-                 (Uvar Pmakeblock/97)))))))))
+                  ((Uvar Pmakeblock_arg/97)))
+                 (Uvar Pmakeblock/98)))))))))
          camlTest__f_45))
        (camlTest__const_block_37
         (Uconst_block 0
@@ -1123,21 +1123,21 @@ let%expect_test "hello" =
      (camlTest__f_45
       (Uconst_closure
        (((label camlTest__f_5) (arity 2)
-         (params ((z/91 Pgenval) (param/90 Pgenval))) (return Pgenval)
+         (params ((z/92 Pgenval) (param/91 Pgenval))) (return Pgenval)
          (body
-          (Ucatch 7 ((y/95 Pgenval) (x/94 Pgenval))
+          (Ucatch 7 ((y/96 Pgenval) (x/95 Pgenval))
            (Uifthenelse
-            (Uprim (Pintcomp Cne) ((Uvar z/91) (Uconst (Uconst_int 0))))
+            (Uprim (Pintcomp Cne) ((Uvar z/92) (Uconst (Uconst_int 0))))
             (Uifthenelse
-             (Uprim (Pintcomp Cne) ((Uvar z/91) (Uconst (Uconst_int 1))))
+             (Uprim (Pintcomp Cne) ((Uvar z/92) (Uconst (Uconst_int 1))))
              (Uprim (Praise Raise_regular)
               ((Uconst (Uconst_ref camlTest__Pmakeblock_46))))
              (Ustaticfail 7 ((Uconst (Uconst_int 0)) (Uconst (Uconst_int 122)))))
             (Ustaticfail 7
-             ((Uprim Psubint ((Uvar z/91) (Uconst (Uconst_int 1))))
+             ((Uprim Psubint ((Uvar z/92) (Uconst (Uconst_int 1))))
               (Uconst (Uconst_int 0)))))
            (Uprim (Pmakeblock 0 Immutable ((Pintval)))
-            ((Uprim Paddint ((Uvar x/94) (Uvar y/95)))))))))
+            ((Uprim Paddint ((Uvar x/95) (Uvar y/96)))))))))
        camlTest__f_45))
      (camlTest__const_block_37
       (Uconst_block 0
@@ -1150,22 +1150,23 @@ let%expect_test "hello" =
       ((Cglobal_symbol camlTest__gc_roots) (Cdefine_symbol camlTest__gc_roots)
        (Cint 0)))
      (Cfunction
-      ((fun_name camlTest__f_5) (fun_args ((z/91 (Val)) (param/90 (Val))))
+      ((fun_name camlTest__f_5) (fun_args ((z/92 (Val)) (param/91 (Val))))
        (fun_body
         (Ccatch Nonrecursive
-         ((7 ((y/95 (Val)) (x/94 (Val)))
+         ((7 ((y/96 (Val)) (x/95 (Val)))
            (Cop Calloc
             ((Cblockheader 1024)
-             (Cop Caddi ((Cop Caddi ((Cvar x/94) (Cvar y/95))) (Cconst_int -1)))))))
-         (Cifthenelse (Cop (Ccmpi Cne) ((Cvar z/91) (Cconst_int 1)))
-          (Cifthenelse (Cop (Ccmpi Cne) ((Cvar z/91) (Cconst_int 3)))
+             (Cop Caddi ((Cop Caddi ((Cvar x/95) (Cvar y/96))) (Cconst_int -1)))))))
+         (Cifthenelse (Cop (Ccmpi Cne) ((Cvar z/92) (Cconst_int 1)))
+          (Cifthenelse (Cop (Ccmpi Cne) ((Cvar z/92) (Cconst_int 3)))
            (Cop (Craise Raise_notrace) ((Cconst_symbol camlTest__Pmakeblock_46)))
            (Cexit 7 ((Cconst_int 1) (Cconst_int 245))))
-          (Cexit 7 ((Cop Caddi ((Cvar z/91) (Cconst_int -2))) (Cconst_int 1))))))))
+          (Cexit 7 ((Cop Caddi ((Cvar z/92) (Cconst_int -2))) (Cconst_int 1))))))))
      (Cdata
       ((Cint 4087) (Cglobal_symbol camlTest__f_45)
-       (Cdefine_symbol camlTest__f_45) (Csymbol_address caml_curry2) (Cint 5)
-       (Csymbol_address camlTest__f_5)))
+       (Cdefine_symbol camlTest__f_45) (Cglobal_symbol camlTest__f_5_closure)
+       (Cdefine_symbol camlTest__f_5_closure) (Csymbol_address caml_curry2)
+       (Cint 5) (Csymbol_address camlTest__f_5)))
      (Cdata
       ((Cint 1792) (Cglobal_symbol camlTest) (Cdefine_symbol camlTest)
        (Csymbol_address camlTest__f_5_closure)))
@@ -1184,7 +1185,7 @@ let%expect_test "hello" =
        (Cint8 7)))
      (Cfunction
       ((fun_name camlTest__entry) (fun_body (Cconst_pointer 1))
-       (fun_codegen_options (Reduce_code_size)))))
+       (fun_codegen_options (Reduce_code_size No_CSE)))))
 
     asm
     ------
@@ -1262,6 +1263,8 @@ let%expect_test "hello" =
     	.quad	4087
     	.globl	camlTest__f_45
     camlTest__f_45:
+    	.globl	camlTest__f_5_closure
+    camlTest__f_5_closure:
     	.quad	caml_curry2
     	.quad	5
     	.quad	camlTest__f_5
@@ -1354,7 +1357,7 @@ let%expect_test "add one" =
       (((str_desc
          (Tstr_value Nonrecursive
           (((vb_pat
-             ((pat_desc (Tpat_var f_107))
+             ((pat_desc (Tpat_var f_108))
               (pat_type
                ((desc
                  (Tlink
@@ -1376,10 +1379,10 @@ let%expect_test "add one" =
               (pat_env <opaque>)))
             (vb_expr
              ((exp_desc
-               (Texp_function (arg_label Nolabel) (param x_108)
+               (Texp_function (arg_label Nolabel) (param x_109)
                 (cases
                  (((c_lhs
-                    ((pat_desc (Tpat_var x_108))
+                    ((pat_desc (Tpat_var x_109))
                      (pat_type
                       ((desc
                         (Tlink
@@ -1432,7 +1435,7 @@ let%expect_test "add one" =
                         (exp_env <opaque>))
                        ((Nolabel
                          (((exp_desc
-                            (Texp_ident (Pident x_108) ((Lident x))
+                            (Texp_ident (Pident x_109) ((Lident x))
                              ((val_type
                                ((desc
                                  (Tlink
@@ -1473,7 +1476,7 @@ let%expect_test "add one" =
               (exp_env <opaque>)))))))
         (str_env <opaque>))))
      (str_type
-      ((Sig_value f_107
+      ((Sig_value f_108
         ((val_type
           ((desc
             (Tlink
@@ -1500,26 +1503,26 @@ let%expect_test "add one" =
     ------
     ((module_ident Test_0) (main_module_block_size 1)
      (code
-      (Llet Strict Pgenval f_107
+      (Llet Strict Pgenval f_108
        (Lfunction
-        ((kind Curried) (params ((x_108 Pintval))) (return Pintval)
+        ((kind Curried) (params ((x_109 Pintval))) (return Pintval)
          (body
-          (Lprim Paddint ((Lvar x_108) (Lconst (Const_base (Const_int 1))))))
+          (Lprim Paddint ((Lvar x_109) (Lconst (Const_base (Const_int 1))))))
          (attr
           ((inline Default_inline) (specialise Default_specialise)
            (local Default_local) (is_a_functor false) (stub false)))))
-       (Lprim (Pmakeblock 0 Immutable) ((Lvar f_107))))))
+       (Lprim (Pmakeblock 0 Immutable) ((Lvar f_108))))))
 
     simplif_lambda
     ------
-    (Llet Strict Pgenval f_107
+    (Llet Strict Pgenval f_108
      (Lfunction
-      ((kind Curried) (params ((x_108 Pintval))) (return Pintval)
-       (body (Lprim Paddint ((Lvar x_108) (Lconst (Const_base (Const_int 1))))))
+      ((kind Curried) (params ((x_109 Pintval))) (return Pintval)
+       (body (Lprim Paddint ((Lvar x_109) (Lconst (Const_base (Const_int 1))))))
        (attr
         ((inline Default_inline) (specialise Default_specialise)
          (local Default_local) (is_a_functor false) (stub false)))))
-     (Lprim (Pmakeblock 0 Immutable) ((Lvar f_107))))
+     (Lprim (Pmakeblock 0 Immutable) ((Lvar f_108))))
 
     flambda
     ------
@@ -1556,13 +1559,13 @@ let%expect_test "add one" =
       ((camlTest (Uconst_block 0 ((Uconst_ref camlTest__f_58_closure))))
        (camlTest__f_68
         (Uconst_closure
-         (((label camlTest__f_58) (arity 1) (params ((x/110 Pgenval)))
+         (((label camlTest__f_58) (arity 1) (params ((x/112 Pgenval)))
            (return Pgenval)
            (body
-            (Ulet Immutable Pgenval Paddint_arg/111 (Uconst (Uconst_int 1))
-             (Ulet Immutable Pgenval Paddint/112
-              (Uprim Paddint ((Uvar x/110) (Uvar Paddint_arg/111)))
-              (Uvar Paddint/112))))))
+            (Ulet Immutable Pgenval Paddint_arg/113 (Uconst (Uconst_int 1))
+             (Ulet Immutable Pgenval Paddint/114
+              (Uprim Paddint ((Uvar x/112) (Uvar Paddint_arg/113)))
+              (Uvar Paddint/114))))))
          camlTest__f_68))))
      (exported
       ((sets_of_closures
@@ -1609,9 +1612,9 @@ let%expect_test "add one" =
     ((camlTest (Uconst_block 0 ((Uconst_ref camlTest__f_58_closure))))
      (camlTest__f_68
       (Uconst_closure
-       (((label camlTest__f_58) (arity 1) (params ((x/110 Pgenval)))
+       (((label camlTest__f_58) (arity 1) (params ((x/112 Pgenval)))
          (return Pgenval)
-         (body (Uprim Paddint ((Uvar x/110) (Uconst (Uconst_int 1)))))))
+         (body (Uprim Paddint ((Uvar x/112) (Uconst (Uconst_int 1)))))))
        camlTest__f_68)))
 
     cmm
@@ -1620,17 +1623,19 @@ let%expect_test "add one" =
       ((Cglobal_symbol camlTest__gc_roots) (Cdefine_symbol camlTest__gc_roots)
        (Cint 0)))
      (Cfunction
-      ((fun_name camlTest__f_58) (fun_args ((x/110 (Val))))
-       (fun_body (Cop Caddi ((Cvar x/110) (Cconst_int 2))))))
+      ((fun_name camlTest__f_58) (fun_args ((x/112 (Val))))
+       (fun_body (Cop Caddi ((Cvar x/112) (Cconst_int 2))))))
      (Cdata
       ((Cint 3063) (Cglobal_symbol camlTest__f_68)
-       (Cdefine_symbol camlTest__f_68) (Csymbol_address camlTest__f_58) (Cint 3)))
+       (Cdefine_symbol camlTest__f_68) (Cglobal_symbol camlTest__f_58_closure)
+       (Cdefine_symbol camlTest__f_58_closure) (Csymbol_address camlTest__f_58)
+       (Cint 3)))
      (Cdata
       ((Cint 1792) (Cglobal_symbol camlTest) (Cdefine_symbol camlTest)
        (Csymbol_address camlTest__f_58_closure)))
      (Cfunction
       ((fun_name camlTest__entry) (fun_body (Cconst_pointer 1))
-       (fun_codegen_options (Reduce_code_size)))))
+       (fun_codegen_options (Reduce_code_size No_CSE)))))
 
     asm
     ------
@@ -1671,6 +1676,8 @@ let%expect_test "add one" =
     	.quad	3063
     	.globl	camlTest__f_68
     camlTest__f_68:
+    	.globl	camlTest__f_58_closure
+    camlTest__f_58_closure:
     	.quad	camlTest__f_58
     	.quad	3
     	.data
