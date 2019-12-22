@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/export_info.mli using sexpify *)
+
 open! Core
 module A = Simple_value_approx
 

@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/flambda_to_clambda.mli using sexpify *)
+
 open! Core
 
 type result = Compiler_without_sexp.Flambda_to_clambda.result =

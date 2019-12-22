@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/path.mli using sexpify *)
+
 open! Core
 
 type t = Compiler_without_sexp.Path.t =

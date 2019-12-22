@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/parsetree.mli using sexpify *)
+
 open! Core
 open! Asttypes
 

@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/freshening.mli using sexpify *)
+
 open! Core
 
 type t = (Compiler_without_sexp.Freshening.t[@sexp.opaque]) [@@deriving sexp_of]

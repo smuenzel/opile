@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/clambda.mli using sexpify *)
+
 open! Core
 open! Asttypes
 open! Lambda

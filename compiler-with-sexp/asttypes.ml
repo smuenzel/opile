@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/asttypes.mli using sexpify *)
+
 open! Core
 
 type constant = Compiler_without_sexp.Asttypes.constant =

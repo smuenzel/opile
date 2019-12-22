@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/primitive.mli using sexpify *)
+
 open! Core
 
 type boxed_integer = Compiler_without_sexp.Primitive.boxed_integer =

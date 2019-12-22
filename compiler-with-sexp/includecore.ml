@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/includecore.mli using sexpify *)
+
 open! Core
 open! Typedtree
 open! Types

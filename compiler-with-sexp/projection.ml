@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/projection.mli using sexpify *)
+
 open! Core
 
 type project_closure = Compiler_without_sexp.Projection.project_closure =

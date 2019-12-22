@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/simple_value_approx.mli using sexpify *)
+
 open! Core
 
 type 'a boxed_int = 'a Compiler_without_sexp.Simple_value_approx.boxed_int =

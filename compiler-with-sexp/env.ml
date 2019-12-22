@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/env.mli using sexpify *)
+
 open! Core
 open! Types
 

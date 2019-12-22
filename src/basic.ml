@@ -1330,3 +1330,382 @@ let%expect_test "hello" =
     	.word	5
     	.align	8
     	.section .note.GNU-stack,"",%progbits |}]
+
+let%expect_test "add one" =
+  run {|
+    let f x = x + 1
+    |};
+  [%expect {|
+    parsetree
+    ------
+    (((pstr_desc
+       (Pstr_value Nonrecursive
+        (((pvb_expr
+           ((pexp_desc
+             (Pexp_fun Nolabel
+              ((pexp_desc
+                (Pexp_apply ((pexp_desc (Pexp_ident ((Lident +)))))
+                 ((Nolabel ((pexp_desc (Pexp_ident ((Lident x))))))
+                  (Nolabel ((pexp_desc (Pexp_constant (Pconst_integer 1)))))))))))))))))))
+
+    typedtree
+    ------
+    ((str_items
+      (((str_desc
+         (Tstr_value Nonrecursive
+          (((vb_pat
+             ((pat_desc (Tpat_var f_107))
+              (pat_type
+               ((desc
+                 (Tlink
+                  ((desc
+                    (Tarrow Nolabel
+                     ((desc
+                       (Tlink
+                        ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                         (scope 0) (id 906))))
+                      (level 1) (scope 0) (id 896))
+                     ((desc
+                       (Tlink
+                        ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                         (scope 0) (id 904))))
+                      (level 1) (scope 0) (id 897))
+                     Cok))
+                   (level 100000000) (scope 0) (id 898))))
+                (level 1) (scope 0) (id 895)))
+              (pat_env <opaque>)))
+            (vb_expr
+             ((exp_desc
+               (Texp_function (arg_label Nolabel) (param x_108)
+                (cases
+                 (((c_lhs
+                    ((pat_desc (Tpat_var x_108))
+                     (pat_type
+                      ((desc
+                        (Tlink
+                         ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                          (scope 0) (id 906))))
+                       (level 1) (scope 0) (id 896)))
+                     (pat_env <opaque>)))
+                   (c_rhs
+                    ((exp_desc
+                      (Texp_apply
+                       ((exp_desc
+                         (Texp_ident (Pdot (Pident Stdlib_0) +) ((Lident +))
+                          ((val_type
+                            ((desc
+                              (Tarrow Nolabel
+                               ((desc (Tconstr (Pident int) Mnil))
+                                (level 100000000) (scope 0) (id 196))
+                               ((desc
+                                 (Tarrow Nolabel
+                                  ((desc (Tconstr (Pident int) Mnil))
+                                   (level 100000000) (scope 0) (id 195))
+                                  ((desc (Tconstr (Pident int) Mnil))
+                                   (level 100000000) (scope 0) (id 194))
+                                  Cok))
+                                (level 100000000) (scope 0) (id 193))
+                               Cok))
+                             (level 100000000) (scope 0) (id 192)))
+                           (val_kind
+                            (Val_prim
+                             ((prim_name %addint) (prim_arity 2)
+                              (prim_native_name "")
+                              (prim_native_repr_args
+                               (Same_as_ocaml_repr Same_as_ocaml_repr))
+                              (prim_native_repr_res Same_as_ocaml_repr)))))))
+                        (exp_type
+                         ((desc
+                           (Tarrow Nolabel
+                            ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                             (scope 0) (id 906))
+                            ((desc
+                              (Tarrow Nolabel
+                               ((desc (Tconstr (Pident int) Mnil)) (level 1)
+                                (scope 0) (id 905))
+                               ((desc (Tconstr (Pident int) Mnil))
+                                (level 100000000) (scope 0) (id 904))
+                               Cok))
+                             (level 1) (scope 0) (id 903))
+                            Cok))
+                          (level 1) (scope 0) (id 902)))
+                        (exp_env <opaque>))
+                       ((Nolabel
+                         (((exp_desc
+                            (Texp_ident (Pident x_108) ((Lident x))
+                             ((val_type
+                               ((desc
+                                 (Tlink
+                                  ((desc (Tconstr (Pident int) Mnil))
+                                   (level 100000000) (scope 0) (id 906))))
+                                (level 1) (scope 0) (id 896)))
+                              (val_kind Val_reg))))
+                           (exp_type
+                            ((desc
+                              (Tlink
+                               ((desc (Tconstr (Pident int) Mnil))
+                                (level 100000000) (scope 0) (id 906))))
+                             (level 1) (scope 0) (id 899)))
+                           (exp_env <opaque>))))
+                        (Nolabel
+                         (((exp_desc (Texp_constant (Const_int 1)))
+                           (exp_type
+                            ((desc
+                              (Tlink
+                               ((desc (Tconstr (Pident int) Mnil)) (level 1)
+                                (scope 0) (id 905))))
+                             (level 2) (scope 0) (id 909)))
+                           (exp_env <opaque>)))))))
+                     (exp_type
+                      ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                       (scope 0) (id 904)))
+                     (exp_env <opaque>))))))
+                (partial Total)))
+              (exp_type
+               ((desc
+                 (Tarrow Nolabel
+                  ((desc (Tconstr (Pident int) Mnil)) (level 100000000) (scope 0)
+                   (id 906))
+                  ((desc (Tconstr (Pident int) Mnil)) (level 100000000) (scope 0)
+                   (id 904))
+                  Cok))
+                (level 100000000) (scope 0) (id 912)))
+              (exp_env <opaque>)))))))
+        (str_env <opaque>))))
+     (str_type
+      ((Sig_value f_107
+        ((val_type
+          ((desc
+            (Tlink
+             ((desc
+               (Tarrow Nolabel
+                ((desc
+                  (Tlink
+                   ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                    (scope 0) (id 906))))
+                 (level 1) (scope 0) (id 896))
+                ((desc
+                  (Tlink
+                   ((desc (Tconstr (Pident int) Mnil)) (level 100000000)
+                    (scope 0) (id 904))))
+                 (level 1) (scope 0) (id 897))
+                Cok))
+              (level 100000000) (scope 0) (id 898))))
+           (level 1) (scope 0) (id 895)))
+         (val_kind Val_reg))
+        Exported)))
+     (str_final_env <opaque>))
+
+    lambda
+    ------
+    ((module_ident Test_0) (main_module_block_size 1)
+     (code
+      (Llet Strict Pgenval f_107
+       (Lfunction
+        ((kind Curried) (params ((x_108 Pintval))) (return Pintval)
+         (body
+          (Lprim Paddint ((Lvar x_108) (Lconst (Const_base (Const_int 1))))))
+         (attr
+          ((inline Default_inline) (specialise Default_specialise)
+           (local Default_local) (is_a_functor false) (stub false)))))
+       (Lprim (Pmakeblock 0 Immutable) ((Lvar f_107))))))
+
+    simplif_lambda
+    ------
+    (Llet Strict Pgenval f_107
+     (Lfunction
+      ((kind Curried) (params ((x_108 Pintval))) (return Pintval)
+       (body (Lprim Paddint ((Lvar x_108) (Lconst (Const_base (Const_int 1))))))
+       (attr
+        ((inline Default_inline) (specialise Default_specialise)
+         (local Default_local) (is_a_functor false) (stub false)))))
+     (Lprim (Pmakeblock 0 Immutable) ((Lvar f_107))))
+
+    flambda
+    ------
+    ((program_body
+      (Let_symbol camlTest__f_68
+       (Set_of_closures
+        ((function_decls
+          ((is_classic_mode false) (set_of_closures_id Test.22)
+           (set_of_closures_origin Test.13)
+           (funs
+            ((f_58
+              ((closure_origin f/61) (params (x/60))
+               (body
+                (Let
+                 ((var Paddint_arg_63) (defining_expr (Const (Int 1)))
+                  (body
+                   (Let
+                    ((var Paddint_64)
+                     (defining_expr (Prim Paddint (x_60 Paddint_arg_63)))
+                     (body (Var Paddint_64))
+                     (free_vars_of_defining_expr (Paddint_arg_63 x_60))
+                     (free_vars_of_body (Paddint_64)))))
+                  (free_vars_of_body (Paddint_arg_63 x_60)))))
+               (free_variables (x_60)) (stub false) (inline Default_inline)
+               (specialise Default_specialise) (is_a_functor false)))))))))
+       (Let_symbol camlTest__f_58_closure (Project_closure camlTest__f_68 f_58)
+        (Let_symbol camlTest (Block 0 ((Symbol camlTest__f_58_closure)))
+         (End camlTest))))))
+
+    clambda_convert
+    ------
+    ((expr (Uconst (Uconst_ptr 0)))
+     (structured_constants
+      ((camlTest (Uconst_block 0 ((Uconst_ref camlTest__f_58_closure))))
+       (camlTest__f_68
+        (Uconst_closure
+         (((label camlTest__f_58) (arity 1) (params ((x/110 Pgenval)))
+           (return Pgenval)
+           (body
+            (Ulet Immutable Pgenval Paddint_arg/111 (Uconst (Uconst_int 1))
+             (Ulet Immutable Pgenval Paddint/112
+              (Uprim Paddint ((Uvar x/110) (Uvar Paddint_arg/111)))
+              (Uvar Paddint/112))))))
+         camlTest__f_68))))
+     (exported
+      ((sets_of_closures
+        ((Test.22
+          ((is_classic_mode false) (set_of_closures_id Test.22)
+           (set_of_closures_origin Test.13)
+           (funs
+            ((f_58
+              ((closure_origin f/61) (params (x/60))
+               (function_body
+                (((free_variables (x_60)) (stub false) (inline Default_inline)
+                  (specialise Default_specialise) (is_a_functor false)
+                  (body
+                   (Let
+                    ((var Paddint_arg_63) (defining_expr (Const (Int 1)))
+                     (body
+                      (Let
+                       ((var Paddint_64)
+                        (defining_expr (Prim Paddint (x_60 Paddint_arg_63)))
+                        (body (Var Paddint_64))
+                        (free_vars_of_defining_expr (Paddint_arg_63 x_60))
+                        (free_vars_of_body (Paddint_64)))))
+                     (free_vars_of_body (Paddint_arg_63 x_60))))))))))))))))
+       (values
+        ((Test
+          ((Test.15 (Value_block 0 ((Value_symbol camlTest__f_58_closure))))
+           (Test.14
+            (Value_closure
+             ((closure_id f_58)
+              (set_of_closures
+               ((set_of_closures_id Test.22) (results ((f_58 Value_unknown)))
+                (aliased_symbol (camlTest__f_68)))))))
+           (Test.11
+            (Value_set_of_closures
+             ((set_of_closures_id Test.22) (results ((f_58 Value_unknown)))
+              (aliased_symbol (camlTest__f_68)))))))))
+       (symbol_id
+        ((camlTest Test.15) (camlTest__f_58_closure Test.14)
+         (camlTest__f_68 Test.11)))
+       (offset_fun ((f_58 0))) (constant_closures (f_58)))))
+
+    un_anf_clambda
+    ------
+    ((camlTest (Uconst_block 0 ((Uconst_ref camlTest__f_58_closure))))
+     (camlTest__f_68
+      (Uconst_closure
+       (((label camlTest__f_58) (arity 1) (params ((x/110 Pgenval)))
+         (return Pgenval)
+         (body (Uprim Paddint ((Uvar x/110) (Uconst (Uconst_int 1)))))))
+       camlTest__f_68)))
+
+    cmm
+    ------
+    ((Cdata
+      ((Cglobal_symbol camlTest__gc_roots) (Cdefine_symbol camlTest__gc_roots)
+       (Cint 0)))
+     (Cfunction
+      ((fun_name camlTest__f_58) (fun_args ((x/110 (Val))))
+       (fun_body (Cop Caddi ((Cvar x/110) (Cconst_int 2))))))
+     (Cdata
+      ((Cint 3063) (Cglobal_symbol camlTest__f_68)
+       (Cdefine_symbol camlTest__f_68) (Csymbol_address camlTest__f_58) (Cint 3)))
+     (Cdata
+      ((Cint 1792) (Cglobal_symbol camlTest) (Cdefine_symbol camlTest)
+       (Csymbol_address camlTest__f_58_closure)))
+     (Cfunction
+      ((fun_name camlTest__entry) (fun_body (Cconst_pointer 1))
+       (fun_codegen_options (Reduce_code_size)))))
+
+    asm
+    ------
+    	.file ""
+    	.section .rodata.cst8,"a",@progbits
+    	.align	16
+    caml_negf_mask:
+    	.quad	0x8000000000000000
+    	.quad	0
+    	.align	16
+    caml_absf_mask:
+    	.quad	0x7fffffffffffffff
+    	.quad	-1
+    	.data
+    	.globl	camlTest__data_begin
+    camlTest__data_begin:
+    	.text
+    	.globl	camlTest__code_begin
+    camlTest__code_begin:
+    	.data
+    	.align	8
+    	.globl	camlTest__gc_roots
+    camlTest__gc_roots:
+    	.quad	0
+    	.text
+    	.align	16
+    	.globl	camlTest__f_58
+    camlTest__f_58:
+    	.cfi_startproc
+    .L108:
+    	addq	$2, %rax
+    	ret
+    	.cfi_endproc
+    	.type camlTest__f_58,@function
+    	.size camlTest__f_58,. - camlTest__f_58
+    	.data
+    	.align	8
+    	.quad	3063
+    	.globl	camlTest__f_68
+    camlTest__f_68:
+    	.quad	camlTest__f_58
+    	.quad	3
+    	.data
+    	.align	8
+    	.quad	1792
+    	.globl	camlTest
+    camlTest:
+    	.quad	camlTest__f_58_closure
+    	.data
+    	.align	8
+    	.text
+    	.align	16
+    	.globl	camlTest__entry
+    camlTest__entry:
+    	.cfi_startproc
+    .L109:
+    	movq	$1, %rax
+    	ret
+    	.cfi_endproc
+    	.type camlTest__entry,@function
+    	.size camlTest__entry,. - camlTest__entry
+    	.text
+    	.globl	camlTest__code_end
+    camlTest__code_end:
+    	.data
+    				/* relocation table start */
+    	.align	8
+    				/* relocation table end */
+    	.data
+    	.quad	0
+    	.globl	camlTest__data_end
+    camlTest__data_end:
+    	.quad	0
+    	.align	8
+    	.globl	camlTest__frametable
+    camlTest__frametable:
+    	.quad	0
+    	.section .note.GNU-stack,"",%progbits |}]

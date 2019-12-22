@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/flambda.mli using sexpify *)
+
 open! Core
 
 type call_kind = Compiler_without_sexp.Flambda.call_kind =

@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/cmm.mli using sexpify *)
+
 open! Core
 
 type machtype_component = Compiler_without_sexp.Cmm.machtype_component =

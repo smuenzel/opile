@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/lexing.mli using sexpify *)
+
 open! Core
 
 type position = Compiler_without_sexp.Lexing.position =

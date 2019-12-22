@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/cmi_format.mli using sexpify *)
+
 open! Core
 
 type pers_flags = Compiler_without_sexp.Cmi_format.pers_flags =

@@ -1,3 +1,5 @@
+(* This file is generated from ../raw-compiler/typetexp.mli using sexpify *)
+
 open! Core
 open! Types
 
