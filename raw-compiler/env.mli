@@ -16,6 +16,16 @@
 (* Environment handling *)
 
 open Types
+open Misc
+
+type value_unbound_reason =
+  | Val_unbound_instance_variable
+  | Val_unbound_self
+  | Val_unbound_ancestor
+  | Val_unbound_ghost_recursive of Location.t
+
+type module_unbound_reason =
+  | Mod_unbound_illegal_recursion
 
 type summary =
     Env_empty
@@ -31,8 +41,10 @@ type summary =
       to skip, i.e. that won't be imported in the toplevel namespace. *)
   | Env_functor_arg of summary * Ident.t
   | Env_constraints of summary * type_declaration Path.Map.t
-  | Env_copy_types of summary * string list
+  | Env_copy_types of summary
   | Env_persistent of summary * Ident.t
+  | Env_value_unbound of summary * string * value_unbound_reason
+  | Env_module_unbound of summary * string * module_unbound_reason
 
 type address =
   | Aident of Ident.t
@@ -52,15 +64,15 @@ type type_descriptions =
 (* For short-paths *)
 type iter_cont
 val iter_types:
-    (Path.t -> Path.t * (type_declaration * type_descriptions) -> unit) ->
+    (Path.t -> Path.t * type_declaration -> unit) ->
     t -> iter_cont
 val run_iter_cont: iter_cont list -> (Path.t * iter_cont) list
 val same_types: t -> t -> bool
 val used_persistent: unit -> Concr.t
 val find_shadowed_types: Path.t -> t -> Path.t list
 val without_cmis: ('a -> 'b) -> 'a -> 'b
-        (* [without_cmis f arg] applies [f] to [arg], but does not
-           allow opening cmis during its execution *)
+(* [without_cmis f arg] applies [f] to [arg], but does not
+   allow opening cmis during its execution *)
 
 (* Lookup by paths *)
 
@@ -72,6 +84,9 @@ val find_modtype: Path.t -> t -> modtype_declaration
 val find_class: Path.t -> t -> class_declaration
 val find_cltype: Path.t -> t -> class_type_declaration
 
+val find_ident_constructor: Ident.t -> t -> constructor_description
+val find_ident_label: Ident.t -> t -> label_description
+
 val find_type_expansion:
     Path.t -> t -> type_expr list * type_expr * int
 val find_type_expansion_opt:
@@ -79,6 +94,9 @@ val find_type_expansion_opt:
 (* Find the manifest type information associated to a type for the sake
    of the compiler's type-based optimisations. *)
 val find_modtype_expansion: Path.t -> t -> module_type
+
+val find_hash_type: Path.t -> t -> type_declaration
+(* Find the "#t" type given the path for "t" *)
 
 val find_value_address: Path.t -> t -> address
 val find_module_address: Path.t -> t -> address
@@ -108,51 +126,137 @@ val add_required_global: Ident.t -> unit
 
 val has_local_constraints: t -> bool
 
+(* Mark definitions as used *)
+val mark_value_used: string -> value_description -> unit
+val mark_module_used: string -> Location.t -> unit
+val mark_type_used: string -> type_declaration -> unit
+
+type constructor_usage = Positive | Pattern | Privatize
+val mark_constructor_used:
+    constructor_usage -> string -> constructor_declaration -> unit
+val mark_extension_used:
+    constructor_usage -> string -> extension_constructor -> unit
+
 (* Lookup by long identifiers *)
 
-(* ?loc is used to report 'deprecated module' warnings and other alerts *)
+(* Lookup errors *)
+
+type unbound_value_hint =
+  | No_hint
+  | Missing_rec of Location.t
+
+type lookup_error =
+  | Unbound_value of Longident.t * unbound_value_hint
+  | Unbound_type of Longident.t
+  | Unbound_constructor of Longident.t
+  | Unbound_label of Longident.t
+  | Unbound_module of Longident.t
+  | Unbound_class of Longident.t
+  | Unbound_modtype of Longident.t
+  | Unbound_cltype of Longident.t
+  | Unbound_instance_variable of string
+  | Not_an_instance_variable of string
+  | Masked_instance_variable of Longident.t
+  | Masked_self_variable of Longident.t
+  | Masked_ancestor_variable of Longident.t
+  | Structure_used_as_functor of Longident.t
+  | Abstract_used_as_functor of Longident.t
+  | Functor_used_as_structure of Longident.t
+  | Abstract_used_as_structure of Longident.t
+  | Generative_used_as_applicative of Longident.t
+  | Illegal_reference_to_recursive_module
+  | Cannot_scrape_alias of Longident.t * Path.t
+
+val lookup_error: Location.t -> t -> lookup_error -> 'a
+
+(* The [lookup_foo] functions will emit proper error messages (by
+   raising [Error]) if the identifier cannot be found, whereas the
+   [find_foo_by_name] functions will raise [Not_found] instead.
+
+   The [~use] parameters of the [lookup_foo] functions control
+   whether this lookup should be counted as a use for usage
+   warnings and alerts.
+
+   [Longident.t]s in the program source should be looked up using
+   [lookup_foo ~use:true] exactly one time -- otherwise warnings may be
+   emitted the wrong number of times. *)
 
 val lookup_value:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> Path.t * value_description
-val lookup_constructor:
-  ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> constructor_description
-val lookup_all_constructors:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> (constructor_description * (unit -> unit)) list
-val lookup_label:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> label_description
-val lookup_all_labels:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> (label_description * (unit -> unit)) list
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * value_description
 val lookup_type:
-  ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> Path.t
-  (* Since 4.04, this function no longer returns [type_description].
-     To obtain it, you should either call [Env.find_type], or replace
-     it by [Typetexp.find_type] *)
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * type_declaration
 val lookup_module:
-  load:bool -> ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> Path.t
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * module_declaration
 val lookup_modtype:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> Path.t * modtype_declaration
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * modtype_declaration
 val lookup_class:
-  ?loc:Location.t -> ?mark:bool ->
-  Longident.t -> t -> Path.t * class_declaration
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * class_declaration
 val lookup_cltype:
-  ?loc:Location.t -> ?mark:bool ->
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  Path.t * class_type_declaration
+
+val lookup_module_path:
+  ?use:bool -> loc:Location.t -> load:bool -> Longident.t -> t -> Path.t
+
+val lookup_constructor:
+  ?use:bool -> loc:Location.t -> constructor_usage -> Longident.t -> t ->
+  constructor_description
+val lookup_all_constructors:
+  ?use:bool -> loc:Location.t -> constructor_usage -> Longident.t -> t ->
+  ((constructor_description * (unit -> unit)) list,
+   Location.t * t * lookup_error) result
+val lookup_all_constructors_from_type:
+  ?use:bool -> loc:Location.t -> constructor_usage -> Path.t -> t ->
+  (constructor_description * (unit -> unit)) list
+
+val lookup_label:
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  label_description
+val lookup_all_labels:
+  ?use:bool -> loc:Location.t -> Longident.t -> t ->
+  ((label_description * (unit -> unit)) list,
+   Location.t * t * lookup_error) result
+val lookup_all_labels_from_type:
+  ?use:bool -> loc:Location.t -> Path.t -> t ->
+  (label_description * (unit -> unit)) list
+
+val lookup_instance_variable:
+  ?use:bool -> loc:Location.t -> string -> t ->
+  Path.t * Asttypes.mutable_flag * string * type_expr
+
+val find_value_by_name:
+  Longident.t -> t -> Path.t * value_description
+val find_type_by_name:
+  Longident.t -> t -> Path.t * type_declaration
+val find_module_by_name:
+  Longident.t -> t -> Path.t * module_declaration
+val find_modtype_by_name:
+  Longident.t -> t -> Path.t * modtype_declaration
+val find_class_by_name:
+  Longident.t -> t -> Path.t * class_declaration
+val find_cltype_by_name:
   Longident.t -> t -> Path.t * class_type_declaration
 
-type copy_of_types
-val make_copy_of_types: string list -> t -> copy_of_types
-val do_copy_types: copy_of_types -> t -> t
-(** [do_copy_types copy env] will raise a fatal error if the values in
-    [env] are different from the env passed to [make_copy_of_types]. *)
+val find_constructor_by_name:
+  Longident.t -> t -> constructor_description
+val find_label_by_name:
+  Longident.t -> t -> label_description
 
-exception Recmodule
-  (* Raise by lookup_module when the identifier refers
-     to one of the modules of a recursive definition
-     during the computation of its approximation (see #5965). *)
+(* Check if a name is bound *)
+
+val bound_value: string -> t -> bool
+val bound_module: string -> t -> bool
+val bound_type: string -> t -> bool
+val bound_modtype: string -> t -> bool
+val bound_class: string -> t -> bool
+val bound_cltype: string -> t -> bool
+
+val make_copy_of_types: t -> (t -> t)
 
 (* Insertion by identifier *)
 
@@ -216,7 +320,8 @@ val enter_module:
   scope:int -> ?arg:bool -> string -> module_presence ->
   module_type -> t -> Ident.t * t
 val enter_module_declaration:
-    ?arg:bool -> Ident.t -> module_presence -> module_declaration -> t -> t
+  scope:int -> ?arg:bool -> string -> module_presence ->
+  module_declaration -> t -> Ident.t * t
 val enter_modtype:
   scope:int -> string -> modtype_declaration -> t -> Ident.t * t
 val enter_class: scope:int -> string -> class_declaration -> t -> Ident.t * t
@@ -226,6 +331,10 @@ val enter_cltype:
 (* Same as [add_signature] but refreshes (new stamp) and rescopes bound idents
    in the process. *)
 val enter_signature: scope:int -> signature -> t -> signature * t
+
+val enter_unbound_value : string -> value_unbound_reason -> t -> t
+
+val enter_unbound_module : string -> module_unbound_reason -> t -> t
 
 (* Initialize the cache of in-core module interfaces. *)
 val reset_cache: unit -> unit
@@ -238,35 +347,29 @@ val set_unit_name: string -> unit
 val get_unit_name: unit -> string
 
 (* Read, save a signature to/from a file *)
-
-val read_signature: string -> string -> signature
+val read_signature: modname -> filepath -> signature
         (* Arguments: module name, file name. Results: signature. *)
 val save_signature:
-  alerts:string Misc.Stdlib.String.Map.t -> signature -> string -> string ->
-  Cmi_format.cmi_infos
+  alerts:alerts -> signature -> modname -> filepath
+  -> Cmi_format.cmi_infos
         (* Arguments: signature, module name, file name. *)
 val save_signature_with_imports:
-  alerts:string Misc.Stdlib.String.Map.t ->
-  signature -> string -> string -> (string * Digest.t option) list
+  alerts:alerts -> signature -> modname -> filepath -> crcs
   -> Cmi_format.cmi_infos
         (* Arguments: signature, module name, file name,
            imported units with their CRCs. *)
 
 (* Return the CRC of the interface of the given compilation unit *)
-
-val crc_of_unit: string -> Digest.t
+val crc_of_unit: modname -> Digest.t
 
 (* Return the set of compilation units imported, with their CRC *)
+val imports: unit -> crcs
 
-val imports: unit -> (string * Digest.t option) list
+(* may raise Persistent_env.Consistbl.Inconsistency *)
+val import_crcs: source:string -> crcs -> unit
 
 (* [is_imported_opaque md] returns true if [md] is an opaque imported module  *)
-val is_imported_opaque: string -> bool
-
-(* Direct access to the table of imported compilation units with their CRC *)
-
-val crc_units: Consistbl.t
-val add_import: string -> unit
+val is_imported_opaque: modname -> bool
 
 (* Summaries -- compact representation of an environment, to be
    exported in debugging information. *)
@@ -283,12 +386,9 @@ val env_of_only_summary : (summary -> Subst.t -> t) -> t -> t
 (* Error report *)
 
 type error =
-  | Illegal_renaming of string * string * string
-  | Inconsistent_import of string * string * string
-  | Need_recursive_types of string * string
-  | Depend_on_unsafe_string_unit of string * string
   | Missing_module of Location.t * Path.t * Path.t
   | Illegal_value_name of Location.t * string
+  | Lookup_error of Location.t * t * lookup_error
 
 exception Error of error
 
@@ -296,18 +396,7 @@ open Format
 
 val report_error: formatter -> error -> unit
 
-
-val mark_value_used: string -> value_description -> unit
-val mark_module_used: string -> Location.t -> unit
-val mark_type_used: string -> type_declaration -> unit
-
-type constructor_usage = Positive | Pattern | Privatize
-val mark_constructor_used:
-    constructor_usage -> string -> type_declaration -> string -> unit
-val mark_constructor:
-    constructor_usage -> t -> string -> constructor_description -> unit
-val mark_extension_used:
-    constructor_usage -> extension_constructor -> string -> unit
+val report_lookup_error: Location.t -> t -> formatter -> lookup_error -> unit
 
 val in_signature: bool -> t -> t
 
@@ -319,8 +408,9 @@ val set_type_used_callback:
     string -> type_declaration -> ((unit -> unit) -> unit) -> unit
 
 (* Forward declaration to break mutual recursion with Includemod. *)
-val check_modtype_inclusion:
-      (loc:Location.t -> t -> module_type -> Path.t -> module_type -> unit) ref
+val check_functor_application:
+      (errors:bool -> loc:Location.t -> t -> module_type ->
+         Path.t -> module_type -> Path.t -> unit) ref
 (* Forward declaration to break mutual recursion with Typemod. *)
 val check_well_formed_module:
     (t -> Location.t -> string -> module_type -> unit) ref
@@ -331,50 +421,13 @@ val strengthen:
     (aliasable:bool -> t -> module_type -> Path.t -> module_type) ref
 (* Forward declaration to break mutual recursion with Ctype. *)
 val same_constr: (t -> type_expr -> type_expr -> bool) ref
-
-(** Folding over all identifiers (for analysis purpose) *)
-
-val fold_values:
-  (string -> Path.t -> value_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-val fold_types:
-  (string -> Path.t -> type_declaration * type_descriptions -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-val fold_constructors:
-  (constructor_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-val fold_labels:
-  (label_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-
-(** Persistent structures are only traversed if they are already loaded. *)
-val fold_modules:
-  (string -> Path.t -> module_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-
-val fold_modtypes:
-  (string -> Path.t -> modtype_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-val fold_classes:
-  (string -> Path.t -> class_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
-val fold_cltypes:
-  (string -> Path.t -> class_type_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+(* Forward declaration to break mutual recursion with Printtyp. *)
+val print_longident: (Format.formatter -> Longident.t -> unit) ref
+(* Forward declaration to break mutual recursion with Printtyp. *)
+val print_path: (Format.formatter -> Path.t -> unit) ref
 
 (** Utilities *)
 val scrape_alias: t -> module_type -> module_type
 val check_value_name: string -> Location.t -> unit
 
 val print_address : Format.formatter -> address -> unit
-
-module Persistent_signature : sig
-  type t =
-    { filename : string; (** Name of the file containing the signature. *)
-      cmi : Cmi_format.cmi_infos }
-
-  (** Function used to load a persistent signature. The default is to look for
-      the .cmi file in the load path. This function can be overridden to load
-      it from memory, for instance to build a self-contained toplevel. *)
-  val load : (unit_name:string -> t option) ref
-end

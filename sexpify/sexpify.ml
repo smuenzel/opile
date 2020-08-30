@@ -34,6 +34,8 @@ let cleanup =
   let replace =
     Longident.Map.of_alist_exn
       [ Longident.parse "Digest.t", Longident.parse "Caml_digest.t"
+      ; Longident.parse "Type_immediacy.t", Longident.parse "Caml_type_immediacy.t"
+      ; Longident.parse "Type_immediacy.Violation.t", Longident.parse "Caml_type_immediacy.Violation.t"
       ]
   in
   let filter_attr attrs =

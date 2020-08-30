@@ -55,8 +55,6 @@ val typ_addr: machtype
 val typ_int: machtype
 val typ_float: machtype
 
-val size_component: machtype_component -> int
-
 (** Least upper bound of two [machtype_component]s. *)
 val lub_component
    : machtype_component
@@ -69,8 +67,6 @@ val ge_component
    : machtype_component
   -> machtype_component
   -> bool
-
-val size_machtype: machtype -> int
 
 type integer_comparison = Lambda.integer_comparison =
   | Ceq | Cne | Clt | Cgt | Cle | Cge
@@ -86,10 +82,6 @@ val swap_float_comparison: float_comparison -> float_comparison
 
 type label = int
 val new_label: unit -> label
-
-type raise_kind =
-  | Raise_withtrace
-  | Raise_notrace
 
 type rec_flag = Nonrecursive | Recursive
 
@@ -149,20 +141,21 @@ and operation =
   | Caddf | Csubf | Cmulf | Cdivf
   | Cfloatofint | Cintoffloat
   | Ccmpf of float_comparison
-  | Craise of raise_kind
-  | Ccheckbound
+  | Craise of Lambda.raise_kind
+  | Ccheckbound (* Takes two arguments : first the bound to check against,
+                   then the index.
+                   It results in a bounds error if the index is greater than
+                   or equal to the bound. *)
 
-(** Not all cmm expressions currently have [Debuginfo.t] values attached to
-    them.  The ones that do are those that are likely to generate code that
-    can fairly robustly be mapped back to a source location.  In the future
-    it might be the case that more [Debuginfo.t] annotations are desirable. *)
+(** Every basic block should have a corresponding [Debuginfo.t] for its
+    beginning. *)
 and expression =
-    Cconst_int of int
-  | Cconst_natint of nativeint
-  | Cconst_float of float
-  | Cconst_symbol of string
-  | Cconst_pointer of int
-  | Cconst_natpointer of nativeint
+    Cconst_int of int * Debuginfo.t
+  | Cconst_natint of nativeint * Debuginfo.t
+  | Cconst_float of float * Debuginfo.t
+  | Cconst_symbol of string * Debuginfo.t
+  | Cconst_pointer of int * Debuginfo.t
+  | Cconst_natpointer of nativeint * Debuginfo.t
   | Cblockheader of nativeint * Debuginfo.t
   | Cvar of Backend_var.t
   | Clet of Backend_var.With_provenance.t * expression * expression
@@ -172,16 +165,18 @@ and expression =
   | Ctuple of expression list
   | Cop of operation * expression list * Debuginfo.t
   | Csequence of expression * expression
-  | Cifthenelse of expression * expression * expression
-  | Cswitch of expression * int array * expression array * Debuginfo.t
-  | Cloop of expression
+  | Cifthenelse of expression * Debuginfo.t * expression
+      * Debuginfo.t * expression * Debuginfo.t
+  | Cswitch of expression * int array * (expression * Debuginfo.t) array
+      * Debuginfo.t
   | Ccatch of
       rec_flag
         * (int * (Backend_var.With_provenance.t * machtype) list
-          * expression) list
+          * expression * Debuginfo.t) list
         * expression
   | Cexit of int * expression list
   | Ctrywith of expression * Backend_var.With_provenance.t * expression
+      * Debuginfo.t
 
 type codegen_option =
   | Reduce_code_size
@@ -215,7 +210,25 @@ type phrase =
 
 val ccatch :
      int * (Backend_var.With_provenance.t * machtype) list
-       * expression * expression
+       * expression * expression * Debuginfo.t
   -> expression
 
 val reset : unit -> unit
+
+val iter_shallow_tail: (expression -> unit) -> expression -> bool
+  (** Either apply the callback to all immediate sub-expressions that
+      can produce the final result for the expression and return
+      [true], or do nothing and return [false].  Note that the notion
+      of "tail" sub-expression used here does not match the one used
+      to trigger tail calls; in particular, try...with handlers are
+      considered to be in tail position (because their result become
+      the final result for the expression).  *)
+
+val map_tail: (expression -> expression) -> expression -> expression
+  (** Apply the transformation to an expression, trying to push it
+      to all inner sub-expressions that can produce the final result.
+      Same disclaimer as for [iter_shallow_tail] about the notion
+      of "tail" sub-expression. *)
+
+val map_shallow: (expression -> expression) -> expression -> expression
+  (** Apply the transformation to each immediate sub-expression. *)

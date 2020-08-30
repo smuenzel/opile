@@ -6,9 +6,7 @@ type t =
   ; typedtree : Typedtree.structure
   ; lambda : Lambda.program
   ; simplif_lambda : Lambda.lambda
-  ; flambda : Flambda.program
-  ; clambda_convert : Flambda_to_clambda.result
-  ; un_anf_clambda : Clambda.ustructured_constant Symbol.Map.t
+  ; clambda_convert : Clambda.ulambda * Clambda.preallocated_block list * Clambda.preallocated_constant list
   ; cmm : Cmm.phrase list
   ; asm : string
   } [@@deriving sexp_of]
@@ -70,68 +68,75 @@ let compile_structure str =
     Translmod.transl_implementation_flambda "Test" (typedtree,Tcoerce_none)
   in
   let simplif_lambda =
-    Simplif.simplify_lambda "Test" lambda.code
+    Simplif.simplify_lambda lambda.code
   in
-  let flambda : Flambda.program =
-    Middle_end.middle_end
+  let clambda_convert =
+    Flambda_middle_end.lambda_to_clambda
       ~ppf_dump:empty_formatter
       ~prefixname:""
       ~backend
-      ~size:lambda.main_module_block_size
       ~filename:"test.ml"
-      ~module_ident:lambda.module_ident
-      ~module_initializer:simplif_lambda
+      { lambda with code = simplif_lambda
+      }
   in
-  let export_info =
-    Build_export_info.build_transient ~backend flambda
-  in
-  let clambda_convert = 
-    Flambda_to_clambda.convert (flambda,export_info)
-  in
-  let un_anf_clambda =
-    Un_anf.apply
-      ~ppf_dump:empty_formatter
-      clambda_convert.expr
-      ~what:""
-  in
-  let rec do_un_anf_ustructured_constant = function
-    | Clambda.Uconst_closure (ufl, str, uconst) ->
-      Clambda.Uconst_closure
-        ( List.map ufl ~f:do_un_anf_ufunction
-        , str
-        , List.map uconst ~f:do_un_anf_uconstant
-        )
-    | other -> other
-  and do_un_anf_ufunction (uf : Clambda.ufunction) =
-    { uf with body = do_un_anf_ulambda uf.body }
-  and do_un_anf_uconstant = function
-    | Clambda.Uconst_ref (str, Some usc) ->
-      Clambda.Uconst_ref (str, Some (do_un_anf_ustructured_constant usc))
-    | other -> other
-  and do_un_anf_ulambda ul =
-    Un_anf.apply
-      ~ppf_dump:empty_formatter
-      ul
-      ~what:""
-  in
-  let un_anf_functions =
-    clambda_convert.structured_constants
-    |> Symbol.Map.map
-         do_un_anf_ustructured_constant
-  in
+  (* {[
+       let export_info =
+         Build_export_info.build_transient ~backend flambda
+       in
+       let clambda_convert = 
+         Flambda_to_clambda.convert (flambda,export_info)
+       in
+     ]} *)
+  (* {[
+       let un_anf_clambda =
+         Un_anf.apply
+           ~ppf_dump:empty_formatter
+           (Tuple3.get1 clambda_convert)
+           ~what:(Symbol.of_variable (Variable.create Internal_variable_names.unit))
+       in
+       let rec do_un_anf_ustructured_constant = function
+         | Clambda.Uconst_closure (ufl, str, uconst) ->
+           Clambda.Uconst_closure
+             ( List.map ufl ~f:do_un_anf_ufunction
+             , str
+             , List.map uconst ~f:do_un_anf_uconstant
+             )
+         | other -> other
+       and do_un_anf_ufunction (uf : Clambda.ufunction) =
+         { uf with body = do_un_anf_ulambda uf.body }
+       and do_un_anf_uconstant = function
+         | Clambda.Uconst_ref (str, Some usc) ->
+           Clambda.Uconst_ref (str, Some (do_un_anf_ustructured_constant usc))
+         | other -> other
+       and do_un_anf_ulambda ul =
+         Un_anf.apply
+           ~ppf_dump:empty_formatter
+           ul
+           ~what:(Symbol.of_variable (Variable.create Internal_variable_names.unit))
+       and do_un_anf_preallocated_constant : Clambda.preallocated_constant -> _ = function
+         | a -> a
+       in
+       let un_anf_functions =
+         (Tuple3.get3 clambda_convert)
+         |> List.map
+           ~f:do_un_anf_preallocated_constant
+       in
+     ]} *)
   let cmm : Cmm.phrase list =
-    let constants =
-      List.map ~f:(fun (symbol, definition) ->
-          { Clambda.symbol = Linkage_name.to_string (Symbol.label symbol);
-            exported = true;
-            definition;
-            provenance = None;
-          })
-        (Symbol.Map.bindings un_anf_functions)
-    in
+    (* {[
+         let constants =
+           List.map ~f:(fun (symbol, definition) ->
+               { Clambda.symbol = Linkage_name.to_string (Symbol.label symbol);
+                 exported = true;
+                 definition;
+                 provenance = None;
+               })
+             (Symbol.Map.bindings un_anf_functions)
+         in
+       ]} *)
     Cmmgen.compunit
-      ~ppf_dump:empty_formatter
-      (un_anf_clambda, clambda_convert.preallocated_blocks, constants)
+      clambda_convert
+      (* {[ (un_anf_clambda, clambda_convert.preallocated_blocks, constants) ]} *)
   in
   let asm =
     Emitaux.reset ();
@@ -151,9 +156,7 @@ let compile_structure str =
   ; typedtree
   ; lambda
   ; simplif_lambda
-  ; flambda
   ; clambda_convert
-  ; un_anf_clambda = un_anf_functions
   ; cmm 
   ; asm
   }

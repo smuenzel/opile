@@ -67,7 +67,7 @@ and ulambda =
   | Uphantom_let of Backend_var.With_provenance.t
       * uphantom_defining_expr option * ulambda
   | Uletrec of (Backend_var.With_provenance.t * ulambda) list * ulambda
-  | Uprim of primitive * ulambda list * Debuginfo.t
+  | Uprim of Clambda_primitives.primitive * ulambda list * Debuginfo.t
   | Uswitch of ulambda * ulambda_switch * Debuginfo.t
   | Ustringswitch of ulambda * (string * ulambda) list * ulambda option
   | Ustaticfail of int * ulambda list
@@ -151,3 +151,6 @@ type preallocated_constant = {
   definition : ustructured_constant;
   provenance : usymbol_provenance option;
 }
+
+type with_constants =
+  ulambda * preallocated_block list * preallocated_constant list

@@ -154,3 +154,15 @@
   (deps   ../raw-compiler/parsetree.mli)
   (mode   promote)
   (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target caml_type_immediacy.ml)
+  (deps   ../raw-compiler/type_immediacy.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))
+
+(rule
+  (target clambda_primitives.ml)
+  (deps   ../raw-compiler/clambda_primitives.mli)
+  (mode   promote)
+  (action (with-stdout-to %{target} (run ../sexpify/sexpify.exe %{deps}))))

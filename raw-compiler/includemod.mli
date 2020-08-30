@@ -17,6 +17,7 @@
 
 open Typedtree
 open Types
+open Format
 
 (** Type describing which arguments of an inclusion to consider as used
     for the usage warnings. [Mark_both] is the default. *)
@@ -60,10 +61,10 @@ type symptom =
   | Type_declarations of Ident.t * type_declaration
         * type_declaration * Includecore.type_mismatch
   | Extension_constructors of Ident.t * extension_constructor
-        * extension_constructor * Includecore.type_mismatch
+        * extension_constructor * Includecore.extension_constructor_mismatch
   | Module_types of module_type * module_type
   | Modtype_infos of Ident.t * modtype_declaration * modtype_declaration
-  | Modtype_permutation
+  | Modtype_permutation of Types.module_type * Typedtree.module_coercion
   | Interface_mismatch of string * string
   | Class_type_declarations of
       Ident.t * class_type_declaration * class_type_declaration *
@@ -76,7 +77,10 @@ type symptom =
   | Invalid_module_alias of Path.t
 
 type pos =
-    Module of Ident.t | Modtype of Ident.t | Arg of Ident.t | Body of Ident.t
+  | Module of Ident.t
+  | Modtype of Ident.t
+  | Arg of functor_parameter
+  | Body of functor_parameter
 type error = pos list * Env.t * symptom
 
 exception Error of error list
